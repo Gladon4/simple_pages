@@ -1,0 +1,73 @@
+html {
+  font-variant-ligatures: none;
+  background-color: #2f3640;
+  color: #dcdde1;
+  font-family: 'JetBrains-Mono', sans-serif;
+}
+
+a {
+  color: #f5f6fa;
+}
+
+body {
+  min-height: 100%;
+}
+
+@font-face {
+  font-family: 'JetBrains-Mono';
+  src: url('/resources/fonts/JetBrains-Mono-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+footer {
+  width: 100%;
+  left: 0;
+  position: absolute;
+  height: 100px;
+  background-color: #353b48;
+}
+
+footer>hr {
+  width: 95%;
+  margin: 5, auto;
+}
+
+footer>div {
+  width: 80%;
+  margin: auto;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.left {
+  display: flex;
+  justify-content: left;
+  align-items: left;
+}
+
+.right {
+  display: flex;
+  justify-content: right;
+  align-items: right;
+}
+
+.txt_center>p {
+  text-align: center;
+}
+
+.txt_left>p {
+  text-align: left;
+}
+
+.txt_right>p {
+  text-align: right;
+}
+
+.ascii {
+  white-space: pre;
+}
