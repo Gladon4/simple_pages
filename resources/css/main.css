@@ -1,23 +1,20 @@
+@font-face {
+  font-family: 'JetBrains-Mono';
+  src: url('/fonts/JetBrains-Mono-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 html {
   font-variant-ligatures: none;
   background-color: #2f3640;
   color: #dcdde1;
   font-family: 'JetBrains-Mono', sans-serif;
+  font-size: 12pt;
 }
 
 a {
   color: #f5f6fa;
-}
-
-body {
-  min-height: 100%;
-}
-
-@font-face {
-  font-family: 'JetBrains-Mono';
-  src: url('/resources/fonts/JetBrains-Mono-Regular.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
 }
 
 footer {
@@ -38,6 +35,19 @@ footer>div {
   margin: auto;
 }
 
+.icon {
+  width: 1em;
+  height: 1em;
+}
+
+.txt_small {
+  font-size: 0.8em;
+}
+
+.txt_big {
+  font-size: 1.2em;
+}
+
 .center {
   display: flex;
   justify-content: center;
@@ -56,15 +66,15 @@ footer>div {
   align-items: right;
 }
 
-.txt_center>p {
+.txt_center>div {
   text-align: center;
 }
 
-.txt_left>p {
+.txt_left>div {
   text-align: left;
 }
 
-.txt_right>p {
+.txt_right>div {
   text-align: right;
 }
 

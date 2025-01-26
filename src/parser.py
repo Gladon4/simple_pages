@@ -15,6 +15,7 @@ class Parser:
         self.files = glob.glob(f"{directory}/**/*.md", recursive=True)
         self.files = ["/".join(f.split("/")[1:])[:-3] for f in self.files]
         self.__make_links()
+        self.__find_icons()
 
         assert "main" in self.files, "Main Page (main.md) must be supplied!"
         self.__parse("main")
@@ -31,17 +32,42 @@ class Parser:
             if name not in self.links.keys():
                 self.links[name] = file
 
+    def __find_icons(self):
+        base_icons = os.listdir("resources/icons/")
+        new_icons = os.listdir(f"{self.directory}/icons/")
+
+        self.icons = {}
+        for icon in base_icons + new_icons:
+            self.icons[icon.split(".")[0]] = icon
+
     def __replace_links(self, line):
-        def replace_var(match):
+        def replace_internal_link(match):
             var = match.group(1)  # Extract the variable name from [[var]]
             name = match.group(2)  # Extract the optional name from [[var|name]]
-            url = self.links.get(
-                var, "#"
-            )  # Look up the variable in the dictionary (default to "#" if not found)
+            url = self.links.get(var, "#")
             text = name if name else var  # Use name if it exists; otherwise, use var
             return f"<a href='{url}.html'>{text}</a>"
 
-        return re.sub(r"\[\[([^\|\]]+)(?:\|([^\]]+))?\]\]", replace_var, line)
+        def replace_external_link(match):
+            var = match.group(1)  # Extract the variable name from [[var]]
+            name = match.group(2)  # Extract the optional name from [[var|name]]
+            text = name if name else var  # Use name if it exists; otherwise, use var
+            return f"<a href='{var}.html'>{text}</a>"
+
+        def replace_icons(match):
+            name = match.group(1)
+            icon = self.icons.get(name, "#")
+            return f"<img src=/icons/{icon} class='icon'></img>"
+
+        line = re.sub(r"\[\{(.+?)\}\]", replace_icons, line)
+        line = re.sub(
+            r"\[\[([^\|\]]+)(?:\|([^\]]+))?\]\]", replace_internal_link, line
+        )
+        line = re.sub(
+            r"\[\(([^\|\]]+)(?:\|([^\]]+))?\)\]", replace_external_link, line
+        )
+
+        return line
 
     def __parse(self, file_name: str):
         assert file_name in self.files, f"Parser._parse: File {file_name} not found"
@@ -67,8 +93,8 @@ class Parser:
         while file.tell() < os.path.getsize(full_file_path):
             line = file.readline().rstrip()
 
-            if "//" in line:
-                line = line[: line.find("//")]
+            if "/--" in line:
+                line = line[: line.find("/--")]
 
             if line.startswith("/*"):
                 while "*/" not in line:
@@ -80,6 +106,7 @@ class Parser:
             anotation_variables = []
             element = ""
             classes = []
+            styles = []
             while line.startswith("@"):
                 anotation = line.split(" ")
                 anotations.append(anotation[0])
@@ -89,16 +116,27 @@ class Parser:
                     anotation_variables.append([0])
                 line = file.readline().rstrip()
 
+            element_filled = False
             for i in range(len(anotations)):
                 if anotations[i] == "@ASCII":
+                    element_filled = True
                     element = self.__ascii_annotaion(
                         line, int(anotation_variables[i][0])
                     )
                     classes.append("ascii")
 
                 if anotations[i] == "@v_space":
+                    element_filled = True
                     for j in range(int(anotation_variables[i][0])):
                         element += "<br>"
+
+                if anotations[i] == "@width":
+                    styles.append(f"width:{str(anotation_variables[i][0])}")
+
+                if anotations[i] == "@txt_small":
+                    classes.append("txt_small")
+                elif anotations[i] == "@txt_big":
+                    classes.append("txt_big")
 
                 if anotations[i] == "@center":
                     classes.append("center")
@@ -116,52 +154,50 @@ class Parser:
 
             line = self.__replace_links(line)
 
-            if element == "":
-                if line.startswith("#"):
-                    element = self.__heading(line)
-                elif line.startswith("___") or line.startswith("---"):
-                    self.pages[file_name]["elements"].append("<hr>")
-                    continue
-                else:
-                    new_elem = self.__paragraph(line, file)
-                    new_elem = self.__replace_links(new_elem)
-                    element = new_elem
+            if not element_filled:
+                # if line.startswith("___") or line.startswith("---"):
+                #     element = "<hr>"
+                # else:
+                new_elem = self.__paragraph(line, file)
+                new_elem = self.__heading(new_elem)
+                new_elem = self.__ruler(new_elem)
+                new_elem = self.__replace_links(new_elem)
+                element = new_elem
 
             classes_str = ""
+            styles_str = ""
             for c in classes:
                 classes_str += c + " "
+            for s in styles:
+                styles_str += s + ";"
 
             self.pages[file_name]["elements"].append(
-                f"<div class='{classes_str}'><p>{element}</p></div>"
+                f"<div class='{classes_str}'><div style='{styles_str}'><p>{element}</p></div></div>"
             )
 
         file.close()
         return
 
+    def __ruler(self, line):
+        return re.sub(r"---", r"<hr>", line)
+
     def __paragraph(self, line, file):
         text = ""
         while line != "":
-            if "//" in line:
-                line = line[: line.find("//")]
-            text += line + " "
+            if "/--" in line:
+                line = line[: line.find("/--")]
+            text += line + "\n"
             line = file.readline().rstrip()
         return text
 
     def __heading(self, line):
-        heading = 1
+        def replace_heading(match):
+            heading_num = len(match.group(1))
+            heading_text = match.group(2)
 
-        if line.startswith("######"):
-            heading = 6
-        elif line.startswith("#####"):
-            heading = 5
-        elif line.startswith("####"):
-            heading = 4
-        elif line.startswith("###"):
-            heading = 3
-        elif line.startswith("##"):
-            heading = 2
+            return f"<h{heading_num}>{heading_text}</h{heading_num}>"
 
-        return f"<h{heading}>{line[heading+1:]}</h{heading}>"
+        return re.sub(r"(#{1,6})\s+([^\n]*)", replace_heading, line)
 
     def __ascii_annotaion(self, line, size=0):
         if line.startswith("#"):
