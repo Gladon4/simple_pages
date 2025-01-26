@@ -11,15 +11,26 @@ if __name__ == "__main__":
     assert len(sys.argv) == 2, "Directory need to be provided"
     dir = sys.argv[1]
 
+    page_font = "JetBrains-Mono-Regular.ttf"
+
     t2a = T2A("resources/fonts/BonaNovaSC-Bold.ttf", [20, 30, 40, 50])
     parser = Parser(dir, t2a)
 
     verison_time_stamp = int((time.time() * 1000) % 1000000)
     shutil.rmtree("export")
     os.makedirs("export", exist_ok=True)
+    os.makedirs("export/fonts", exist_ok=True)
+    shutil.copy(f"resources/fonts/{page_font}", f"export/fonts/{page_font}")
     shutil.copytree(
         "resources/css", f"export/css/{verison_time_stamp}", dirs_exist_ok=True
     )
+    shutil.copytree("resources/icons", f"export/icons/", dirs_exist_ok=True)
+    if os.path.isdir(f"{parser.directory}/icons"):
+        shutil.copytree(
+            f"{parser.directory}/icons",
+            f"export/icons",
+            dirs_exist_ok=True,
+        )
 
     time_stamp = datetime.datetime.now().strftime("%d.%m.%Y, %H:%M")
 
@@ -56,11 +67,19 @@ if __name__ == "__main__":
                     <div>
                         <a href='/main.html'>Frontpage</a>
                         <br>
-                        <p>Version from: {time_stamp}</p>
+                        <p>
+                            Version from: {time_stamp}
+                            <br>
+                            Created with:
+                            <a href='https://github.com/Gladon4/ascii_page_creator'>
+                            <img src='/icons/github-white.png' class='icon'></img>
+                            Simple Pages
+                            </a>
+                        </p>
                     </div>
                 </footer>
                 """.format(
-                    time_stamp=time_stamp
+                    time_stamp=time_stamp,
                 )
             )
             f.write("</body>")

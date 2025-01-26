@@ -3,3 +3,4 @@ Pipfile
 export
 *.ttf
 test_page
+__pycache__
