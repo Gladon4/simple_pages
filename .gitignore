@@ -1,0 +1,5 @@
+Pipfile
+.ropeproject
+export
+*.ttf
+test_page
