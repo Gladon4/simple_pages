@@ -12,17 +12,21 @@ class Parser:
         self.directory = directory
         self.pages = {}
         self.t2a = t2a
-        self.files = glob.glob(f"{directory}/**/*.md", recursive=True)
-        self.files = ["/".join(f.split("/")[1:])[:-3] for f in self.files]
+
+    def parse(self):
+        for file in self.files:
+            self.__parse(file)
+
+    def setup(self):
+        self.files = glob.glob(f"{self.directory}/**/*.md", recursive=True)
+        self.files = [
+            "/".join(f.split("/")[len(self.directory.split("/")) :])[:-3]
+            for f in self.files
+        ]
         self.__make_links()
         self.__find_icons()
 
         assert "main" in self.files, "Main Page (main.md) must be supplied!"
-        self.__parse("main")
-
-        while len(self.files) != 0:
-            file = self.files[0]
-            self.__parse(file)
 
     def __make_links(self):
         self.links = {}
@@ -34,7 +38,10 @@ class Parser:
 
     def __find_icons(self):
         base_icons = os.listdir("resources/icons/")
-        new_icons = os.listdir(f"{self.directory}/icons/")
+        new_icons = []
+
+        if os.path.isdir(f"{self.directory}/icons/"):
+            new_icons = os.listdir(f"{self.directory}/icons/")
 
         self.icons = {}
         for icon in base_icons + new_icons:
@@ -52,7 +59,7 @@ class Parser:
             var = match.group(1)  # Extract the variable name from [[var]]
             name = match.group(2)  # Extract the optional name from [[var|name]]
             text = name if name else var  # Use name if it exists; otherwise, use var
-            return f"<a href='{var}.html'>{text}</a>"
+            return f"<a href='{var}'>{text}</a>"
 
         def replace_icons(match):
             name = match.group(1)
@@ -72,7 +79,6 @@ class Parser:
     def __parse(self, file_name: str):
         assert file_name in self.files, f"Parser._parse: File {file_name} not found"
 
-        self.files.remove(file_name)
         self.pages[file_name] = {"elements": []}
         self.pages[file_name]["front_matter"] = {
             "title": "Placeholder",
