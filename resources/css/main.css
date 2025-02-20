@@ -40,6 +40,10 @@ footer>div {
   height: 1em;
 }
 
+.img {
+  width: 100%;
+}
+
 .txt_small {
   font-size: 0.8em;
 }

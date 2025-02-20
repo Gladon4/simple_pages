@@ -39,11 +39,21 @@ class Converter:
         shutil.copytree(
             "resources/icons", f"{self.output_directory}/icons/", dirs_exist_ok=True
         )
+        shutil.copytree(
+            "resources/img", f"{self.output_directory}/img/", dirs_exist_ok=True
+        )
 
         if os.path.isdir(f"{self.input_directory}/icons"):
             shutil.copytree(
                 f"{self.input_directory}/icons",
                 f"{self.output_directory}/icons",
+                dirs_exist_ok=True,
+            )
+
+        if os.path.isdir(f"{self.input_directory}/img"):
+            shutil.copytree(
+                f"{self.input_directory}/img",
+                f"{self.output_directory}/img",
                 dirs_exist_ok=True,
             )
 
