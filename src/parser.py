@@ -25,6 +25,7 @@ class Parser:
         ]
         self.__make_links()
         self.__find_icons()
+        self.__find_images()
 
         assert "main" in self.files, "Main Page (main.md) must be supplied!"
 
@@ -47,11 +48,22 @@ class Parser:
         for icon in base_icons + new_icons:
             self.icons[icon.split(".")[0]] = icon
 
+    def __find_images(self):
+        base_images = os.listdir("resources/img/")
+        new_images = []
+
+        if os.path.isdir(f"{self.directory}/img/"):
+            new_images = os.listdir(f"{self.directory}/img/")
+
+        self.images = {}
+        for image in base_images + new_images:
+            self.images[image.split(".")[0]] = image
+
     def __replace_links(self, line):
         def replace_internal_link(match):
             var = match.group(1)  # Extract the variable name from [[var]]
             name = match.group(2)  # Extract the optional name from [[var|name]]
-            url = self.links.get(var, "#")
+            url = self.links.get(var, "not_link")
             text = name if name else var  # Use name if it exists; otherwise, use var
             return f"<a href='{url}.html'>{text}</a>"
 
@@ -63,7 +75,7 @@ class Parser:
 
         def replace_icons(match):
             name = match.group(1)
-            icon = self.icons.get(name, "#")
+            icon = self.icons.get(name, "not_link")
             return f"<img src=/icons/{icon} class='icon'></img>"
 
         line = re.sub(r"\[\{(.+?)\}\]", replace_icons, line)
@@ -72,6 +84,29 @@ class Parser:
         )
         line = re.sub(
             r"\[\(([^\|\]]+)(?:\|([^\]]+))?\)\]", replace_external_link, line
+        )
+
+        return line
+
+    def __replace_images(self, line):
+        def replace_internal_link(match):
+            var = match.group(1)  # Extract the variable name from [[var]]
+            name = match.group(2)  # Extract the optional name from [[var|name]]
+            url = self.images.get(var, "not_image")
+            text = name if name else var  # Use name if it exists; otherwise, use var
+            return f"<img src=/img/{url} alt='{text}' class='img'></img>"
+
+        def replace_external_link(match):
+            url = match.group(1)  # Extract the variable name from [[var]]
+            name = match.group(2)  # Extract the optional name from [[var|name]]
+            text = name if name else url  # Use name if it exists; otherwise, use var
+            return f"<img src={url} alt='{text}' class='img'></img>"
+
+        line = re.sub(
+            r"!\[\[([^\|\]]+)(?:\|([^\]]+))?\]\]", replace_internal_link, line
+        )
+        line = re.sub(
+            r"!\[\(([^\|\]]+)(?:\|([^\]]+))?\)\]", replace_external_link, line
         )
 
         return line
@@ -158,6 +193,7 @@ class Parser:
                 elif anotations[i] == "@txt_right":
                     classes.append("txt_right")
 
+            line = self.__replace_images(line)
             line = self.__replace_links(line)
 
             if not element_filled:
@@ -167,6 +203,7 @@ class Parser:
                 new_elem = self.__paragraph(line, file)
                 new_elem = self.__heading(new_elem)
                 new_elem = self.__ruler(new_elem)
+                new_elem = self.__replace_images(new_elem)
                 new_elem = self.__replace_links(new_elem)
                 element = new_elem
 
@@ -185,7 +222,7 @@ class Parser:
         return
 
     def __ruler(self, line):
-        return re.sub(r"---", r"<hr>", line)
+        return re.sub(r"[-_]{3,}", r"<hr>", line)
 
     def __paragraph(self, line, file):
         text = ""
