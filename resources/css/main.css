@@ -13,8 +13,34 @@ html {
   font-size: 12pt;
 }
 
+table {
+  width: 100%;
+  margin: auto;
+}
+
+tr {
+  margin: auto;
+}
+
+.inverted {
+  color: #2f3640;
+  background-color: #dcdde1;
+}
+
+.small_bar>hr {
+  width: 60%;
+}
+
+.rounded {
+  border-radius: 0.3em;
+}
+
 a {
   color: #f5f6fa;
+}
+
+.inverted a {
+  color: #192a56
 }
 
 footer {

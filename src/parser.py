@@ -91,16 +91,14 @@ class Parser:
     def __replace_images(self, line):
         def replace_internal_link(match):
             var = match.group(1)  # Extract the variable name from [[var]]
-            name = match.group(2)  # Extract the optional name from [[var|name]]
+            width = match.group(2)  # Extract the optional name from [[var|name]]
             url = self.images.get(var, "not_image")
-            text = name if name else var  # Use name if it exists; otherwise, use var
-            return f"<img src=/img/{url} alt='{text}' class='img'></img>"
+            return f"<img src=/img/{url} alt='{var}' style='width:{width};' class='img'></img>"
 
         def replace_external_link(match):
             url = match.group(1)  # Extract the variable name from [[var]]
-            name = match.group(2)  # Extract the optional name from [[var|name]]
-            text = name if name else url  # Use name if it exists; otherwise, use var
-            return f"<img src={url} alt='{text}' class='img'></img>"
+            width = match.group(2)  # Extract the optional name from [[var|name]]
+            return f"<img src={url} alt='{url}' style='width:{width};' class='img'></img>"
 
         line = re.sub(
             r"!\[\[([^\|\]]+)(?:\|([^\]]+))?\]\]", replace_internal_link, line
@@ -125,7 +123,6 @@ class Parser:
                 classes,
                 styles,
                 section_type,
-                cols,
             ) = self.__get_elem(line, file)
             line = file.readline().rstrip()
 
@@ -148,6 +145,68 @@ class Parser:
 
         return wrapper
 
+    def __get_table(self, line, file, vars):
+        header = ""
+        body = ""
+
+        make_header = True
+        if len(vars) == 1:
+            if vars[0] == "false":
+                make_header = False
+
+        if make_header:
+            header += "<tr>"
+            line = self.__replace_images(line)
+            line = self.__replace_links(line)
+            header_names = line.split("|")
+            for name in header_names:
+                header += f"<th>{name.strip()}</th>"
+            header += "</tr>"
+            line = file.readline().rstrip()
+            line = file.readline().rstrip()
+
+        while line != "":
+            if "/--" in line:
+                line = line[: line.find("/--")]
+            if line.startswith("@"):
+                line = self.__get_div(line, file)
+
+            body += "<tr>"
+            line = self.__replace_images(line)
+            line = self.__replace_links(line)
+            row = line.split("|")
+            for name in row:
+                body += f"<td>{name.strip()}</td>"
+            body += "</tr>"
+            line = file.readline().rstrip()
+
+        table = f"<table>{header}{body}</table>"
+
+        return table
+
+    def __get_div(self, line, file):
+        (
+            anotations,
+            anotation_variables,
+            element,
+            classes,
+            styles,
+            section_type,
+        ) = self.__get_elem(line, file)
+
+        classes_str = ""
+        styles_str = ""
+        for c in classes:
+            classes_str += c + " "
+        for s in styles:
+            styles_str += s + ";"
+
+        if section_type == "p":
+            return f"<div class='{classes_str}'><div style='{styles_str}'><p>{element}</p></div></div>"
+
+        elif section_type == "col":
+            return f"<div class='{classes_str}'><div style='{styles_str}'>{element}</div></div>"
+
     def __get_elem(self, line, file):
         anotations = []
         anotation_variables = []
@@ -155,7 +214,6 @@ class Parser:
         classes = []
         styles = []
         section_type = "p"
-        cols = -1
         while line.startswith("@"):
             anotation = line.split(" ")
             anotations.append(anotation[0])
@@ -181,6 +239,19 @@ class Parser:
 
             if anotations[i] == "@width":
                 styles.append(f"width:{str(anotation_variables[i][0])}")
+            if anotations[i] == "@background":
+                styles.append(f"background-color:{str(anotation_variables[i][0])}")
+            if anotations[i] == "@txt_color":
+                styles.append(f"color:{str(anotation_variables[i][0])}")
+
+            if anotations[i] == "@color_inv":
+                classes.append("inverted")
+
+            if anotations[i] == "@rounded":
+                classes.append("rounded")
+
+            if anotations[i] == "@small_bar":
+                classes.append("small_bar")
 
             if anotations[i] == "@txt_small":
                 classes.append("txt_small")
@@ -205,16 +276,21 @@ class Parser:
                 section_type = "col"
                 element_filled = True
                 vars = anotation_variables[i]
-                cols = int(vars[0])
                 element = self.__get_cols(line, file, vars)
+
+            if anotations[i] == "@table":
+                element_filled = True
+                vars = anotation_variables[i]
+                element = self.__get_table(line, file, vars)
 
         if not element_filled:
             new_elem = self.__paragraph(line, file)
             new_elem = self.__heading(new_elem)
             new_elem = self.__ruler(new_elem)
-            new_elem = self.__replace_images(new_elem)
-            new_elem = self.__replace_links(new_elem)
             element = new_elem
+
+        element = self.__replace_images(element)
+        element = self.__replace_links(element)
 
         return (
             anotations,
@@ -223,7 +299,6 @@ class Parser:
             classes,
             styles,
             section_type,
-            cols,
         )
 
     def __parse(self, file_name: str):
@@ -258,31 +333,7 @@ class Parser:
 
                 line = line[(line.find("*/") + 2) :]
 
-            (
-                anotations,
-                anotation_variables,
-                element,
-                classes,
-                styles,
-                section_type,
-                cols,
-            ) = self.__get_elem(line, file)
-
-            classes_str = ""
-            styles_str = ""
-            for c in classes:
-                classes_str += c + " "
-            for s in styles:
-                styles_str += s + ";"
-
-            if section_type == "p":
-                self.pages[file_name]["elements"].append(
-                    f"<div class='{classes_str}'><div style='{styles_str}'><p>{element}</p></div></div>"
-                )
-            elif section_type == "col":
-                self.pages[file_name]["elements"].append(
-                    f"<div class='{classes_str}'><div style='{styles_str}'>{element}</div></div>"
-                )
+            self.pages[file_name]["elements"].append(self.__get_div(line, file))
 
         file.close()
         return
@@ -290,11 +341,14 @@ class Parser:
     def __ruler(self, line):
         return re.sub(r"[-_]{3,}", r"<hr>", line)
 
-    def __paragraph(self, line, file):
+    def __paragraph(self, line: str, file):
         text = ""
         while line != "":
             if "/--" in line:
                 line = line[: line.find("/--")]
+            if line.startswith("@"):
+                line = self.__get_div(line, file)
+
             text += line + "\n"
             line = file.readline().rstrip()
         return text
