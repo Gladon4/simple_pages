@@ -111,9 +111,12 @@ class Parser:
 
         return line
 
-    def __get_cols(self, line, file, count):
+    def __get_cols(self, line, file, vars):
         line = file.readline().rstrip()
         elem = ""
+
+        count = int(vars[0])
+
         for i in range(count):
             (
                 anotations,
@@ -134,7 +137,14 @@ class Parser:
                 styles_str += s + ";"
             elem += f"<div class='col_container {classes_str}' style='{styles_str}'><p>{element}</p></div>\n"
 
-        wrapper = f"<div style='grid-template-columns: {'1fr ' * count};' class='col_wrapper'>{elem}</div>"
+        spacing = ""
+        if len(vars) - 1 < count:
+            spacing = " 1fr" * count
+        else:
+            for s in vars[1:]:
+                spacing += f" {int(s)}fr"
+
+        wrapper = f"<div style='grid-template-columns: {spacing};' class='col_wrapper'>{elem}</div>"
 
         return wrapper
 
@@ -194,8 +204,9 @@ class Parser:
             if anotations[i] == "@columns":
                 section_type = "col"
                 element_filled = True
-                cols = int(anotation_variables[i][0])
-                element = self.__get_cols(line, file, cols)
+                vars = anotation_variables[i]
+                cols = int(vars[0])
+                element = self.__get_cols(line, file, vars)
 
         if not element_filled:
             new_elem = self.__paragraph(line, file)
