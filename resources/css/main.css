@@ -41,7 +41,18 @@ footer>div {
 }
 
 .img {
+  object-fit: cover;
   width: 100%;
+}
+
+.col_wrapper {
+  display: grid;
+  position: relative;
+}
+
+.col_container {
+  position: relative;
+  width: 97%;
 }
 
 .txt_small {
@@ -70,17 +81,21 @@ footer>div {
   align-items: right;
 }
 
-.txt_center>div {
+.txt_center>div,
+.txt_center {
   text-align: center;
 }
 
-.txt_left>div {
+.txt_left>div,
+.txt_left {
   text-align: left;
 }
 
-.txt_right>div {
+.txt_right>div,
+.txt_right {
   text-align: right;
 }
+
 
 .ascii {
   white-space: pre;

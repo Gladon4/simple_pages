@@ -111,6 +111,110 @@ class Parser:
 
         return line
 
+    def __get_cols(self, line, file, count):
+        line = file.readline().rstrip()
+        elem = ""
+        for i in range(count):
+            (
+                anotations,
+                anotation_variables,
+                element,
+                classes,
+                styles,
+                section_type,
+                cols,
+            ) = self.__get_elem(line, file)
+            line = file.readline().rstrip()
+
+            classes_str = ""
+            styles_str = ""
+            for c in classes:
+                classes_str += c + " "
+            for s in styles:
+                styles_str += s + ";"
+            elem += f"<div class='col_container {classes_str}' style='{styles_str}'><p>{element}</p></div>\n"
+
+        wrapper = f"<div style='grid-template-columns: {'1fr ' * count};' class='col_wrapper'>{elem}</div>"
+
+        return wrapper
+
+    def __get_elem(self, line, file):
+        anotations = []
+        anotation_variables = []
+        element = ""
+        classes = []
+        styles = []
+        section_type = "p"
+        cols = -1
+        while line.startswith("@"):
+            anotation = line.split(" ")
+            anotations.append(anotation[0])
+            if len(anotation) > 1:
+                anotation_variables.append(anotation[1:])
+            else:
+                anotation_variables.append([0])
+            line = file.readline().rstrip()
+
+        element_filled = False
+        for i in range(len(anotations)):
+            if anotations[i] == "@ASCII":
+                element_filled = True
+                element = self.__ascii_annotaion(
+                    line, int(anotation_variables[i][0])
+                )
+                classes.append("ascii")
+
+            if anotations[i] == "@v_space":
+                element_filled = True
+                for j in range(int(anotation_variables[i][0])):
+                    element += "<br>"
+
+            if anotations[i] == "@width":
+                styles.append(f"width:{str(anotation_variables[i][0])}")
+
+            if anotations[i] == "@txt_small":
+                classes.append("txt_small")
+            elif anotations[i] == "@txt_big":
+                classes.append("txt_big")
+
+            if anotations[i] == "@center":
+                classes.append("center")
+            elif anotations[i] == "@left":
+                classes.append("left")
+            elif anotations[i] == "@right":
+                classes.append("right")
+
+            if anotations[i] == "@txt_center":
+                classes.append("txt_center")
+            elif anotations[i] == "@txt_left":
+                classes.append("txt_left")
+            elif anotations[i] == "@txt_right":
+                classes.append("txt_right")
+
+            if anotations[i] == "@columns":
+                section_type = "col"
+                element_filled = True
+                cols = int(anotation_variables[i][0])
+                element = self.__get_cols(line, file, cols)
+
+        if not element_filled:
+            new_elem = self.__paragraph(line, file)
+            new_elem = self.__heading(new_elem)
+            new_elem = self.__ruler(new_elem)
+            new_elem = self.__replace_images(new_elem)
+            new_elem = self.__replace_links(new_elem)
+            element = new_elem
+
+        return (
+            anotations,
+            anotation_variables,
+            element,
+            classes,
+            styles,
+            section_type,
+            cols,
+        )
+
     def __parse(self, file_name: str):
         assert file_name in self.files, f"Parser._parse: File {file_name} not found"
 
@@ -143,69 +247,15 @@ class Parser:
 
                 line = line[(line.find("*/") + 2) :]
 
-            anotations = []
-            anotation_variables = []
-            element = ""
-            classes = []
-            styles = []
-            while line.startswith("@"):
-                anotation = line.split(" ")
-                anotations.append(anotation[0])
-                if len(anotation) > 1:
-                    anotation_variables.append(anotation[1:])
-                else:
-                    anotation_variables.append([0])
-                line = file.readline().rstrip()
-
-            element_filled = False
-            for i in range(len(anotations)):
-                if anotations[i] == "@ASCII":
-                    element_filled = True
-                    element = self.__ascii_annotaion(
-                        line, int(anotation_variables[i][0])
-                    )
-                    classes.append("ascii")
-
-                if anotations[i] == "@v_space":
-                    element_filled = True
-                    for j in range(int(anotation_variables[i][0])):
-                        element += "<br>"
-
-                if anotations[i] == "@width":
-                    styles.append(f"width:{str(anotation_variables[i][0])}")
-
-                if anotations[i] == "@txt_small":
-                    classes.append("txt_small")
-                elif anotations[i] == "@txt_big":
-                    classes.append("txt_big")
-
-                if anotations[i] == "@center":
-                    classes.append("center")
-                elif anotations[i] == "@left":
-                    classes.append("left")
-                elif anotations[i] == "@right":
-                    classes.append("right")
-
-                if anotations[i] == "@txt_center":
-                    classes.append("txt_center")
-                elif anotations[i] == "@txt_left":
-                    classes.append("txt_left")
-                elif anotations[i] == "@txt_right":
-                    classes.append("txt_right")
-
-            line = self.__replace_images(line)
-            line = self.__replace_links(line)
-
-            if not element_filled:
-                # if line.startswith("___") or line.startswith("---"):
-                #     element = "<hr>"
-                # else:
-                new_elem = self.__paragraph(line, file)
-                new_elem = self.__heading(new_elem)
-                new_elem = self.__ruler(new_elem)
-                new_elem = self.__replace_images(new_elem)
-                new_elem = self.__replace_links(new_elem)
-                element = new_elem
+            (
+                anotations,
+                anotation_variables,
+                element,
+                classes,
+                styles,
+                section_type,
+                cols,
+            ) = self.__get_elem(line, file)
 
             classes_str = ""
             styles_str = ""
@@ -214,9 +264,14 @@ class Parser:
             for s in styles:
                 styles_str += s + ";"
 
-            self.pages[file_name]["elements"].append(
-                f"<div class='{classes_str}'><div style='{styles_str}'><p>{element}</p></div></div>"
-            )
+            if section_type == "p":
+                self.pages[file_name]["elements"].append(
+                    f"<div class='{classes_str}'><div style='{styles_str}'><p>{element}</p></div></div>"
+                )
+            elif section_type == "col":
+                self.pages[file_name]["elements"].append(
+                    f"<div class='{classes_str}'><div style='{styles_str}'>{element}</div></div>"
+                )
 
         file.close()
         return

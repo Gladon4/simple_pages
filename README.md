@@ -13,6 +13,7 @@ A set of scripts to convert simple anotated Markdown files into static HTML web 
   - Internal
   - External
 - Icons in the text
+- Columns
 
 ## Roadmap
 - Multi language support
