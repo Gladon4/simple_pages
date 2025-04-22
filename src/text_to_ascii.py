@@ -18,7 +18,8 @@ class T2A:
             font = self.fonts[font_size]
 
             # Determine the size of the image needed to render the text
-            text_width, text_height = int(font.getlength(input_string)), font_size
+            # FontSize * 2 shpule be enough but is needed to have proper support for lower case and larger letters, it gets trimmed down later
+            text_width, text_height = int(font.getlength(input_string)), font_size * 2
             image = Image.new("L", (text_width, text_height), color=255)
 
             # Draw the text onto the image
