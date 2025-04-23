@@ -27,7 +27,7 @@ class Parser:
         self.__find_icons()
         self.__find_images()
 
-        assert "main" in self.files, "Main Page (main.md) must be supplied!"
+        assert "index" in self.files, "Main Page (index.md) must be supplied!"
 
     def __make_links(self):
         self.links = {}

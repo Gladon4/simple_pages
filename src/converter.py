@@ -92,7 +92,7 @@ class Converter:
                     <footer>
                         <hr>
                         <div>
-                            <a href='/main.html'>Frontpage</a>
+                            <a href='/index.html'>Frontpage</a>
                             <br>
                             <p>
                                 Page version from: {time_stamp}
