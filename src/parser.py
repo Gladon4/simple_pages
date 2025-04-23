@@ -66,6 +66,11 @@ class Parser:
             var = match.group(1)  # Extract the variable name from [[var]]
             name = match.group(2)  # Extract the optional name from [[var|name]]
             url = self.links.get(var, "not_link")
+
+            # Remove longest common prefix path, to not add the current directory again
+            while url.split("/")[0] == self.current_file.split("/")[0]:
+                url = "/".join(url.split("/")[1:])
+
             text = name if name else var  # Use name if it exists; otherwise, use var
             return f"<a href='{url}.html'>{text}</a>"
 
@@ -108,6 +113,39 @@ class Parser:
         line = re.sub(
             r"!\[\(([^\|\]]+)(?:\|([^\]]+))?\)\]", replace_external_link, line
         )
+
+        return line
+    
+    def __replace_styling(self, line):
+        def replace_bold(match):
+            var = match.group(1) 
+            return f"<strong>{var}</strong>"
+        
+        def replace_italic(match):
+            var = match.group(1) 
+            return f"<i>{var}</i>"
+
+        def replace_italic_bold(match):
+            var = match.group(1) 
+            return f"<i><strong>{var}</strong></i>"
+        
+        if len(line) == 0:
+            return line
+        
+        # Check for invisible character to not mess up ascii art
+        if line[0] == "​":
+            return line
+
+        line = re.sub(
+            r"(?<!\*)\*\*([^*\n]+?)\*\*(?!\*)", replace_bold, line
+        )
+        line = re.sub(
+            r"(?<!\*)\*([^*\n]+?)\*(?!\*)", replace_italic, line
+        )
+        line = re.sub(
+            r"(?<!\*)\*\*\*([^*\n]+?)\*\*\*(?!\*)", replace_italic_bold, line
+        )
+
 
         return line
 
@@ -291,6 +329,7 @@ class Parser:
             new_elem = self.__ruler(new_elem)
             element = new_elem
 
+        element = self.__replace_styling(element)
         element = self.__replace_images(element)
         element = self.__replace_links(element)
 

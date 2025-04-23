@@ -77,6 +77,8 @@ class T2A:
 
             ascii_art = ""
             for y in range(image.height):
+                # Add invisible character, so i can do ** for styling and not mess up the ascii art
+                ascii_art += "​"
                 for x in range(image.width):
                     brightness = pixels[x, y] / 255  # Normalize to 0-1
                     if brightness <= 0.95:
