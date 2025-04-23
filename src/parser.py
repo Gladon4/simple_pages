@@ -12,9 +12,11 @@ class Parser:
         self.directory = directory
         self.pages = {}
         self.t2a = t2a
+        self.current_file = None
 
     def parse(self):
         for file in self.files:
+            self.current_file = file
             self.__parse(file)
 
     def setup(self):
@@ -308,6 +310,7 @@ class Parser:
         self.pages[file_name]["front_matter"] = {
             "title": "Placeholder",
             "width": "85%",
+            "ascii-font": self.t2a.default_font,
         }
 
         full_file_path = os.path.join(self.directory, file_name + ".md")
@@ -385,11 +388,11 @@ class Parser:
 
             size = size if size != 0 else new_size
 
-            ascii_art = self.t2a.string_to_ascii(line[indent:], size, 0.9)
+            ascii_art = self.t2a.string_to_ascii(line[indent:], size, self.pages[self.current_file]["front_matter"]["ascii-font"], 0.9)
             return ascii_art
 
         else:
             assert size != 0, "Size has to be non zero if not a heading"
 
-            ascii_art = self.t2a.string_to_ascii(line, size, 0.9)
+            ascii_art = self.t2a.string_to_ascii(line, size, self.pages[self.current_file]["front_matter"]["ascii-font"], 0.9)
             return ascii_art
