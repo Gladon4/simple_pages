@@ -40,11 +40,11 @@ class Parser:
                 self.links[name] = file
 
     def __find_icons(self):
-        base_icons = os.listdir("resources/icons/")
+        base_icons = os.listdir("resources/icon/")
         new_icons = []
 
-        if os.path.isdir(f"{self.directory}/icons/"):
-            new_icons = os.listdir(f"{self.directory}/icons/")
+        if os.path.isdir(f"{self.directory}/icon/"):
+            new_icons = os.listdir(f"{self.directory}/icon/")
 
         self.icons = {}
         for icon in base_icons + new_icons:

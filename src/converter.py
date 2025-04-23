@@ -37,16 +37,16 @@ class Converter:
             dirs_exist_ok=True,
         )
         shutil.copytree(
-            "resources/icons", f"{self.output_directory}/icons/", dirs_exist_ok=True
+            "resources/icon", f"{self.output_directory}/icon/", dirs_exist_ok=True
         )
         shutil.copytree(
             "resources/img", f"{self.output_directory}/img/", dirs_exist_ok=True
         )
 
-        if os.path.isdir(f"{self.input_directory}/icons"):
+        if os.path.isdir(f"{self.input_directory}/icon"):
             shutil.copytree(
-                f"{self.input_directory}/icons",
-                f"{self.output_directory}/icons",
+                f"{self.input_directory}/icon",
+                f"{self.output_directory}/icon",
                 dirs_exist_ok=True,
             )
 
@@ -101,7 +101,7 @@ class Converter:
                                 <br>
                                 Created with:
                                 <a href='https://github.com/Gladon4/ascii_page_creator'>
-                                <img src='/icons/github-white.png' class='icon'></img>
+                                <img src='/icon/github-white.png' class='icon'></img>
                                 Simple Pages
                                 </a>
                             </p>
