@@ -33,7 +33,7 @@ if __name__ == "__main__":
     output_dir = sys.argv[2]
 
     page_font = "JetBrains-Mono-Regular.ttf"
-    ascii_font = "BonaNovaSC-Bold.ttf"
+    ascii_font = "JetBrains-Mono-Regular.ttf"
 
     converter.setup(input_dir, output_dir, page_font, ascii_font)
     converter.convert()

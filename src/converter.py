@@ -11,13 +11,13 @@ class Converter:
     def __init__(self):
         pass
 
-    def setup(self, input_directory, output_directory, page_font, ascii_font):
+    def setup(self, input_directory, output_directory, default_page_font, default_ascii_font):
         self.input_directory = input_directory
         self.output_directory = output_directory
-        self.page_font = page_font
-        self.ascii_font = ascii_font
+        self.default_page_font = default_page_font
+        self.default_ascii_font = default_ascii_font
 
-        self.t2a = T2A(f"resources/fonts/{ascii_font}", [20, 30, 40, 50])
+        self.t2a = T2A("resources/fonts/", f"{default_ascii_font}", [20, 30, 40, 50])
         self.parser = Parser(input_directory, self.t2a)
 
     def convert(self):
@@ -28,8 +28,8 @@ class Converter:
         os.makedirs(self.output_directory, exist_ok=True)
         os.makedirs(f"{self.output_directory}/fonts", exist_ok=True)
         shutil.copy(
-            f"resources/fonts/{self.page_font}",
-            f"{self.output_directory}/fonts/{self.page_font}",
+            f"resources/fonts/{self.default_page_font}",
+            f"{self.output_directory}/fonts/{self.default_page_font}",
         )
         shutil.copytree(
             "resources/css",

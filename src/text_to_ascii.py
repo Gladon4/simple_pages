@@ -4,18 +4,31 @@ import random
 
 
 class T2A:
-    def __init__(self, font_path, font_sizes):
-        self.font_path = font_path
+    def __init__(self, font_path, default_font, font_sizes):
+        self.default_font = default_font
         self.fonts = {}
+        self.font_path = font_path
+        self.__load_font(default_font, font_sizes)
+
+    def __load_font(self, font, font_sizes):
+        if font not in self.fonts:
+            self.fonts[font] = {}
         for size in font_sizes:
-            self.fonts[size] = ImageFont.truetype(font_path, size)
+            self.fonts[font][size] = ImageFont.truetype(self.font_path + font.strip(), size)
 
-    def string_to_ascii(self, input_string, font_size, fade_str=1.0):
+
+    def string_to_ascii(self, input_string, font_size, font=None, fade_str=1.0):
+        if font is None:
+            font = self.default_font
+        
+        if font not in self.fonts:
+            self.__load_font(font, [font_size])
+
         try:
-            if font_size not in self.fonts.keys():
-                self.fonts[font_size] = ImageFont.truetype(self.font_path, font_size)
+            if font_size not in self.fonts[font]:
+                self.__load_font(font, [font_size])
 
-            font = self.fonts[font_size]
+            font = self.fonts[font][font_size]
 
             # Determine the size of the image needed to render the text
             # FontSize * 2 shpule be enough but is needed to have proper support for lower case and larger letters, it gets trimmed down later
