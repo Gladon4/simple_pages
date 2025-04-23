@@ -72,8 +72,10 @@ class Converter:
             with open(f"{self.output_directory}/{page}.html", "w") as f:
                 f.write(
                     """<!DOCTYPE html>
+                            <html lang="en">
                             <head>
                                 <title>{title}</title>
+                                 <meta charset="UTF-16">
                                 <link rel="stylesheet" href="/css/{time_stamp}/main.css">
                             </head>
                             <body style="width: {width};margin:auto">
