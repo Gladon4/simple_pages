@@ -5,6 +5,13 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'JetBrains-Mono';
+  src: url('/fonts/JetBrains-Mono-ExtraBold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
 html {
   font-variant-ligatures: none;
   background-color: #2f3640;
@@ -22,7 +29,7 @@ tr {
   margin: auto;
 }
 
-.inverted {
+.inverted:has(div)>div, .inverted:not(:has(div)) {
   color: #2f3640;
   background-color: #dcdde1;
 }
@@ -31,12 +38,16 @@ tr {
   width: 60%;
 }
 
-.rounded {
+.rounded:has(div)>div, .rounded:not(:has(div)) {
   border-radius: 0.3em;
 }
 
 a {
   color: #f5f6fa;
+}
+
+p {
+  margin: 0.2em;
 }
 
 .inverted a {
@@ -128,4 +139,13 @@ div:not(.ascii)>div {
 
 .ascii {
   white-space: pre;
+}
+
+strong {
+  font-weight: bold;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: normal;
+  margin: 0.5em, 0;
 }
