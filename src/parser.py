@@ -83,7 +83,7 @@ class Parser:
         def replace_icons(match):
             name = match.group(1)
             icon = self.icons.get(name, "not_link")
-            return f"<img src=/icons/{icon} class='icon'></img>"
+            return f"<img src=/icon/{icon} class='icon'></img>"
 
         line = re.sub(r"\[\{(.+?)\}\]", replace_icons, line)
         line = re.sub(
