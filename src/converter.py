@@ -100,7 +100,7 @@ class Converter:
                                 Page version from: {time_stamp}
                                 <br>
                                 Created with:
-                                <a href='https://github.com/Gladon4/ascii_page_creator'>
+                                <a href='https://github.com/Gladon4/simple_pages'>
                                 <img src='/icon/github-white.png' class='icon'></img>
                                 Simple Pages
                                 </a>
