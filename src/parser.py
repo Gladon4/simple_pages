@@ -322,8 +322,12 @@ class Parser:
 
             if anotations[i] == "@txt_small":
                 classes.append("txt_small")
+            elif anotations[i] == "@txt_xsmall":
+                classes.append("txt_xsmall")
             elif anotations[i] == "@txt_big":
                 classes.append("txt_big")
+            elif anotations[i] == "@txt_xbig":
+                classes.append("txt_xbig")
 
             if anotations[i] == "@center":
                 classes.append("center")
