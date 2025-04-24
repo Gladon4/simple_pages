@@ -224,6 +224,32 @@ class Parser:
 
         return table
 
+    def __pull_out_headings_and_paragraphs(self, element):
+        pattern = r'(<h[123456][^>]*>.*?</h[123456]>)'
+        parts = re.split(pattern, element, flags=re.DOTALL)
+
+        if len(parts) <= 1:
+            return element
+
+        result = []
+        i = 0
+
+        while i < len(parts):
+            if re.match(pattern, parts[i], flags=re.DOTALL):
+                result.append(parts[i])  # keep header as-is
+                i += 1
+                content = ""
+                # collect all non-header lines until next header or end
+                while i < len(parts) and not re.match(pattern, parts[i], flags=re.DOTALL):
+                    content += parts[i].strip()
+                    i += 1
+                if content:
+                    result.append(f"<p>\n{content}\n</p>")
+            else:
+                i += 1  # skip anything before the first header
+
+        return "\n".join(result)
+
     def __get_div(self, line, file):
         (
             anotations,
@@ -242,7 +268,8 @@ class Parser:
             styles_str += s + ";"
 
         if section_type == "p":
-            return f"<div class='{classes_str}'><div style='{styles_str}'><p>{element}</p></div></div>"
+            element = self.__pull_out_headings_and_paragraphs(element)
+            return f"<div class='{classes_str}'><div style='{styles_str}'>{element}</div></div>"
 
         elif section_type == "col":
             return f"<div class='{classes_str}'><div style='{styles_str}'>{element}</div></div>"
