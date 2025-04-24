@@ -47,7 +47,7 @@ a {
 }
 
 p {
-  margin: 0.2em;
+  margin: 0.25em;
 }
 
 .inverted a {
@@ -96,8 +96,16 @@ footer>div {
   font-size: 0.8em;
 }
 
+.txt_xsmall {
+  font-size: 0.5em;
+}
+
 .txt_big {
   font-size: 1.2em;
+}
+
+.txt_xbig{
+  font-size: 1.5em;
 }
 
 .center {
@@ -147,5 +155,5 @@ strong {
 
 h1, h2, h3, h4, h5, h6 {
   font-weight: normal;
-  margin: 0.5em, 0;
+  margin: 0.25em;
 }
