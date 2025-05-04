@@ -21,7 +21,7 @@ class Converter:
         self.parser = Parser(input_directory, self.t2a)
 
     def convert(self):
-        time_stamp = datetime.datetime.now().strftime("%d.%m.%Y, %H:%M")
+        time_stamp = datetime.datetime.now().strftime("%Y-%m-%d, %H:%M")
         verison_time_stamp = int((time.time() * 1000) % 1000000)
 
         shutil.rmtree(self.output_directory)
@@ -37,27 +37,27 @@ class Converter:
             dirs_exist_ok=True,
         )
         shutil.copytree(
-            "resources/icon", f"{self.output_directory}/icon/", dirs_exist_ok=True
+            "resources/icon", f"{self.output_directory}/icon/{verison_time_stamp}", dirs_exist_ok=True
         )
         shutil.copytree(
-            "resources/img", f"{self.output_directory}/img/", dirs_exist_ok=True
+            "resources/img", f"{self.output_directory}/img/{verison_time_stamp}", dirs_exist_ok=True
         )
 
-        if os.path.isdir(f"{self.input_directory}/icon"):
+        if os.path.isdir(f"{self.input_directory}/icon/"):
             shutil.copytree(
                 f"{self.input_directory}/icon",
-                f"{self.output_directory}/icon",
+                f"{self.output_directory}/icon/{verison_time_stamp}",
                 dirs_exist_ok=True,
             )
 
         if os.path.isdir(f"{self.input_directory}/img"):
             shutil.copytree(
                 f"{self.input_directory}/img",
-                f"{self.output_directory}/img",
+                f"{self.output_directory}/img/{verison_time_stamp}",
                 dirs_exist_ok=True,
             )
 
-        self.parser.setup()
+        self.parser.setup(verison_time_stamp)
         self.parser.parse()
 
         for page in self.parser.pages:
@@ -75,14 +75,16 @@ class Converter:
                             <html lang="en">
                             <head>
                                 <title>{title}</title>
-                                 <meta charset="UTF-16">
+                                <meta charset="UTF-16">
                                 <link rel="stylesheet" href="/css/{time_stamp}/main.css">
+                                <link rel="icon" type="icon/x-icon" href="/icon/{time_stamp}/{icon}.png">
                             </head>
                             <body style="width: {width};margin:auto">
                     """.format(
                         title=front_matter["title"],
                         width=front_matter["width"],
                         time_stamp=verison_time_stamp,
+                        icon=front_matter["icon"]
                     )
                 )
 
@@ -94,21 +96,22 @@ class Converter:
                     <footer>
                         <hr>
                         <div>
-                            <a href='/index.html'>Frontpage</a>
+                            <p>
+                                Back to <a href='/'>{front_page}</a>
+                            </p>
                             <br>
                             <p>
-                                Page version from: {time_stamp}
-                                <br>
                                 Created with:
                                 <a href='https://github.com/Gladon4/simple_pages'>
-                                <img src='/icon/github-white.png' class='icon'></img>
-                                Simple Pages
-                                </a>
+                                <img src='/icon/{verison_time_stamp}/github-white.png' class='icon'></img>
+                                Simple Pages</a> - {time_stamp}
                             </p>
                         </div>
                     </footer>
                     """.format(
                         time_stamp=time_stamp,
+                        verison_time_stamp=verison_time_stamp,
+                        front_page=self.parser.pages["index"]["front_matter"]["title"]
                     )
                 )
                 f.write("</body>")
