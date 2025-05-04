@@ -19,7 +19,8 @@ class Parser:
             self.current_file = file
             self.__parse(file)
 
-    def setup(self):
+    def setup(self, verison_time_stamp):
+        self.verison_time_stamp = verison_time_stamp
         self.files = glob.glob(f"{self.directory}/**/*.md", recursive=True)
         self.files = [
             "/".join(f.split("/")[len(self.directory.split("/")) :])[:-3]
@@ -83,7 +84,7 @@ class Parser:
         def replace_icons(match):
             name = match.group(1)
             icon = self.icons.get(name, "not_link")
-            return f"<img src=/icon/{icon} class='icon'></img>"
+            return f"<img src=/icon/{self.verison_time_stamp}/{icon} class='icon'></img>"
 
         line = re.sub(r"\[\{(.+?)\}\]", replace_icons, line)
         line = re.sub(
@@ -100,7 +101,7 @@ class Parser:
             var = match.group(1)  # Extract the variable name from [[var]]
             width = match.group(2)  # Extract the optional name from [[var|name]]
             url = self.images.get(var, "not_image")
-            return f"<img src=/img/{url} alt='{var}' style='width:{width};' class='img'></img>"
+            return f"<img src=/img/{self.verison_time_stamp}/{url} alt='{var}' style='width:{width};' class='img'></img>"
 
         def replace_external_link(match):
             url = match.group(1)  # Extract the variable name from [[var]]
@@ -378,9 +379,10 @@ class Parser:
 
         self.pages[file_name] = {"elements": []}
         self.pages[file_name]["front_matter"] = {
-            "title": "Placeholder",
+            "title": "Page",
             "width": "85%",
             "ascii-font": self.t2a.default_font,
+            "icon": "page"
         }
 
         full_file_path = os.path.join(self.directory, file_name + ".md")
