@@ -393,7 +393,7 @@ class Parser:
             line = file.readline()
             while not line.startswith("---"):
                 prop = line.split(":")
-                self.pages[file_name]["front_matter"][prop[0]] = prop[1].rstrip()
+                self.pages[file_name]["front_matter"][prop[0]] = prop[1].strip()
                 line = file.readline().rstrip()
 
         while file.tell() < os.path.getsize(full_file_path):
