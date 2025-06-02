@@ -33,9 +33,10 @@ if __name__ == "__main__":
     output_dir = sys.argv[2]
 
     page_font = "JetBrains-Mono-Regular.ttf"
+    bold_font = "JetBrains-Mono-ExtraBold.ttf"
     ascii_font = "JetBrains-Mono-Regular.ttf"
 
-    converter.setup(input_dir, output_dir, page_font, ascii_font)
+    converter.setup(input_dir, output_dir, page_font, bold_font, ascii_font)
     converter.convert()
 
     # Initialize logging event handler
