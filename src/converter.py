@@ -42,6 +42,7 @@ class Converter:
         shutil.copytree(
             "resources/img", f"{self.output_directory}/img/{verison_time_stamp}", dirs_exist_ok=True
         )
+        shutil.copy("resources/.htaccess",  f"{self.output_directory}/.htaccess")
 
         if os.path.isdir(f"{self.input_directory}/icon/"):
             shutil.copytree(

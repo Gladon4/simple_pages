@@ -73,7 +73,7 @@ class Parser:
                 url = "/".join(url.split("/")[1:])
 
             text = name if name else var  # Use name if it exists; otherwise, use var
-            return f"<a href='{url}.html'>{text}</a>"
+            return f"<a href='{url}'>{text}</a>"
 
         def replace_external_link(match):
             var = match.group(1)  # Extract the variable name from [[var]]
