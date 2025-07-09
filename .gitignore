@@ -4,3 +4,4 @@ export
 *.ttf
 test_page
 __pycache__
+uv.lock

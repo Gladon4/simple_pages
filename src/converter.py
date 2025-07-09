@@ -1,25 +1,39 @@
-from text_to_ascii import T2A
-from parser import Parser
+from src.text_to_ascii import T2A
+from src.parser import Parser
 
 import os
 import shutil
 import time
 import datetime
+import configparser
 
+HOME_PATH = os.getcwd()
 
 class Converter:
-    def __init__(self):
-        pass
-
-    def setup(self, input_directory, output_directory, default_page_font, default_bold_font, default_ascii_font):
+    def __init__(self, input_directory, output_directory, uses_redirection):
         self.input_directory = input_directory
         self.output_directory = output_directory
-        self.default_page_font = default_page_font
-        self.default_bold_font = default_bold_font
-        self.default_ascii_font = default_ascii_font
 
-        self.t2a = T2A("resources/fonts/", f"{default_ascii_font}", [20, 30, 40, 50])
-        self.parser = Parser(input_directory, self.t2a)
+        default_config = configparser.ConfigParser()
+        custom_config = configparser.ConfigParser()
+        config = configparser.ConfigParser()
+        
+        default_config.read(os.path.join(HOME_PATH, "config.ini"))
+        config.read_dict(default_config)       
+
+        if os.path.isfile(os.path.join(input_directory, "config.ini")):
+            custom_config.read(os.path.join(input_directory, "config.ini"))
+            config.read_dict(custom_config)
+
+        self.config = config
+
+        self.default_page_font = config["font"]["regular"]
+        self.default_bold_font = config["font"]["bold"]
+        self.default_ascii_font = config["font"]["ascii"]
+        self.uses_redirection = uses_redirection
+
+        self.t2a = T2A("resources/fonts/", config["font"]["ascii"], [20, 30, 40, 50])
+        self.parser = Parser(input_directory, self.t2a, uses_redirection)
 
     def convert(self):
         time_stamp = datetime.datetime.now().strftime("%Y-%m-%d, %H:%M")
@@ -47,7 +61,9 @@ class Converter:
         shutil.copytree(
             "resources/img", f"{self.output_directory}/img/{verison_time_stamp}", dirs_exist_ok=True
         )
-        shutil.copy("resources/.htaccess",  f"{self.output_directory}/.htaccess")
+
+        if self.uses_redirection:
+            shutil.copy("resources/.htaccess",  f"{self.output_directory}/.htaccess")
 
         if os.path.isdir(f"{self.input_directory}/icon/"):
             shutil.copytree(
@@ -84,13 +100,33 @@ class Converter:
                                 <meta charset="UTF-16">
                                 <link rel="stylesheet" href="/css/{time_stamp}/main.css">
                                 <link rel="icon" type="icon/x-icon" href="/icon/{time_stamp}/{icon}.png">
+
+                                <style>
+                                    @font-face {{
+                                        font-family: '{family}';
+                                        src: url('/fonts/{regular}') format('truetype');
+                                        font-weight: normal;
+                                        font-style: normal;
+                                    }}
+
+                                    @font-face {{
+                                        font-family: '{family}';
+                                        src: url('/fonts/{bold}') format('truetype');
+                                        font-weight: bold;
+                                        font-style: normal;
+                                    }}
+                                </style>
                             </head>
+
                             <body style="width: {width};margin:auto">
                     """.format(
                         title=front_matter["title"],
                         width=front_matter["width"],
                         time_stamp=verison_time_stamp,
-                        icon=front_matter["icon"]
+                        icon=front_matter["icon"],
+                        family=self.config["font"]["family"],
+                        regular=self.config["font"]["regular"],
+                        bold=self.config["font"]["bold"]
                     )
                 )
 
