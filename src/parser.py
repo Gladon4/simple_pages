@@ -1,18 +1,17 @@
 import os
-import sys
 import glob
-import time
 import re
 
-from text_to_ascii import T2A
+from src.text_to_ascii import T2A
 
 
 class Parser:
-    def __init__(self, directory: str, t2a: T2A):
+    def __init__(self, directory: str, t2a: T2A, uses_redirection:bool):
         self.directory = directory
         self.pages = {}
         self.t2a = t2a
         self.current_file = None
+        self.uses_redirection = uses_redirection
 
     def parse(self):
         for file in self.files:
@@ -66,11 +65,13 @@ class Parser:
         def replace_internal_link(match):
             var = match.group(1)  # Extract the variable name from [[var]]
             name = match.group(2)  # Extract the optional name from [[var|name]]
-            url = self.links.get(var, "not_link")
+            url = self.links.get(var, "404")
 
             # Remove longest common prefix path, to not add the current directory again
             while url.split("/")[0] == self.current_file.split("/")[0]:
                 url = "/".join(url.split("/")[1:])
+            if not self.uses_redirection:
+                url += ".html"
 
             text = name if name else var  # Use name if it exists; otherwise, use var
             return f"<a href='{url}'>{text}</a>"
@@ -83,7 +84,7 @@ class Parser:
 
         def replace_icons(match):
             name = match.group(1)
-            icon = self.icons.get(name, "not_link")
+            icon = self.icons.get(name, "404")
             return f"<img src=/icon/{self.verison_time_stamp}/{icon} class='icon'></img>"
 
         line = re.sub(r"\[\{(.+?)\}\]", replace_icons, line)

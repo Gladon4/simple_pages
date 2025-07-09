@@ -1,0 +1,11 @@
+[project]
+name = "simple-pages"
+version = "0.1.0"
+description = "A python tool to create simple websites"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "numpy>=2.2.2",
+    "pillow>=11.1.0",
+    "watchdog>=6.0.0"
+]
