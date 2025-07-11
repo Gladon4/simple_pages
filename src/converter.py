@@ -6,6 +6,7 @@ import shutil
 import time
 import datetime
 import configparser
+import json
 
 HOME_PATH = os.getcwd()
 
@@ -61,6 +62,9 @@ class Converter:
         shutil.copytree(
             "resources/img", f"{self.output_directory}/img/{verison_time_stamp}", dirs_exist_ok=True
         )
+        shutil.copytree(
+            "resources/js", f"{self.output_directory}/js/{verison_time_stamp}", dirs_exist_ok=True
+        )
 
         if self.uses_redirection:
             shutil.copy("resources/.htaccess",  f"{self.output_directory}/.htaccess")
@@ -80,6 +84,9 @@ class Converter:
             )
 
         self.parser.setup(verison_time_stamp)
+        with open(f"{self.output_directory}/pages.json", "w") as pages_file:
+	        json.dump(self.parser.pages_json, pages_file)
+
         self.parser.parse()
 
         for page in self.parser.pages:
@@ -149,6 +156,7 @@ class Converter:
                                 Simple Pages</a> - {time_stamp}
                             </p>
                         </div>
+                        <script src='/js/{verison_time_stamp}/search.js'></script>
                     </footer>
                     """.format(
                         time_stamp=time_stamp,

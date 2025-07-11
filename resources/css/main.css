@@ -145,3 +145,50 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: normal;
   margin: 0.25em;
 }
+
+.search-container {
+  position: relative;
+}
+
+#searchInput {
+  width: 100%;
+  padding: 5px;
+  font-size: 16px;
+  box-sizing: border-box;
+  color: #2f3640;
+  background-color: #dcdde1;
+}
+
+#results {
+  position: absolute;
+  top: 100%; /* below input */
+  left: 0;
+  width: 95%;
+  color: #2f3640;
+  background-color: #dcdde1;
+  list-style: none;
+  margin: 0;
+  padding: 5px;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  display: none; /* hide by default */
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+#results li {
+  padding: 5px;
+  cursor: pointer;
+  color: black;
+}
+
+#results a {
+  color: black;
+  /*text-decoration: none;*/
+  display: block; /* Makes the entire list item clickable */
+}
+
+#results li:hover {
+  background-color: #eee;
+}
