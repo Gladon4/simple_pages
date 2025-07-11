@@ -26,6 +26,7 @@ class Parser:
             for f in self.files
         ]
         self.__make_links()
+        self.__create_sarch_list()
         self.__find_icons()
         self.__find_images()
 
@@ -38,6 +39,24 @@ class Parser:
             name = file.split("/")[-1]
             if name not in self.links.keys():
                 self.links[name] = file
+
+    def __create_sarch_list(self):
+        assert self.links != None, "Something went wrong, no links available"
+
+        single_links = {}
+        for relative_path in self.links:
+            absolute_path = self.links[relative_path]
+            if absolute_path in single_links and single_links[absolute_path] < relative_path:
+                continue
+            single_links[absolute_path] = relative_path
+        
+        self.pages_json = []
+        for link in single_links:
+            page = single_links[link]
+            url = "/" + link
+            if not self.uses_redirection:
+                url += ".html"
+            self.pages_json.append({"name": page, "path": url})
 
     def __find_icons(self):
         base_icons = os.listdir("resources/icon/")
@@ -305,6 +324,15 @@ class Parser:
                 element_filled = True
                 for j in range(int(anotation_variables[i][0])):
                     element += "<br>"
+
+            if anotations[i] == "@search":
+                element_filled = True
+                element =   """
+                            <div class="search-container">
+                                <input type="text" id="searchInput" placeholder="Search pages..." />
+                                <ul id="results"></ul>
+                            </div>
+                            """
 
             if anotations[i] == "@width":
                 styles.append(f"width:{str(anotation_variables[i][0])}")
