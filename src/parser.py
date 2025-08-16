@@ -9,43 +9,67 @@ class Parser:
     def __init__(self, directory: str, t2a: T2A, uses_redirection:bool):
         self.directory = directory
         self.pages = {}
+        self.media = {}
         self.t2a = t2a
         self.current_file = None
         self.uses_redirection = uses_redirection
 
     def parse(self):
-        for file in self.files:
+        for file in self.page_files:
             self.current_file = file
             self.__parse(file)
 
     def setup(self, verison_time_stamp):
         self.verison_time_stamp = verison_time_stamp
-        self.files = glob.glob(f"{self.directory}/**/*.md", recursive=True)
-        self.files = [
+        self.page_files = glob.glob(f"{self.directory}/**/*.md", recursive=True)
+        self.media_files = glob.glob(f"{self.directory}/**/*.[!md,ini]*", recursive=True)
+        self.media_files += glob.glob(f"{os.path.join(os.getcwd(),"resources","img")}/**/*.[!md,ini]*", recursive=True)
+        self.media_files += glob.glob(f"{os.path.join(os.getcwd(),"resources","icon")}/**/*.[!md,ini]*", recursive=True)
+
+        # Removes global path and '.md'
+        self.page_files = [
             "/".join(f.split("/")[len(self.directory.split("/")) :])[:-3]
-            for f in self.files
+            for f in self.page_files
         ]
+        # Removes global path
+        self.media_files = [
+            "/".join(f.split("/")[len(self.directory.split("/")) :])
+            for f in self.media_files
+        ]
+
         self.__make_links()
         self.__create_sarch_list()
         self.__find_icons()
         self.__find_images()
 
-        assert "index" in self.files, "Main Page (index.md) must be supplied!"
+        assert "index" in self.page_files, "Main Page (index.md) must be supplied!"
 
     def __make_links(self):
-        self.links = {}
-        for file in self.files:
-            self.links[file] = file
+        self.page_links = {}
+        self.media_links = {}
+
+        for file in self.page_files:
+            self.page_links[file] = file
             name = file.split("/")[-1]
-            if name not in self.links.keys():
-                self.links[name] = file
+            if name not in self.page_links.keys():
+                self.page_links[name] = file
+
+        for file in self.media_files:
+            self.media_links[file] = file
+            name = file.split("/")[-1]
+            if name not in self.media_links.keys():
+                self.media_links[name] = file
+
+            name_no_type = name.split(".")[0]
+            if name_no_type not in self.media_links.keys():
+                self.media_links[name_no_type] = file
 
     def __create_sarch_list(self):
-        assert self.links != None, "Something went wrong, no links available"
+        assert self.page_links != None, "Something went wrong, no links available"
 
         single_links = {}
-        for relative_path in self.links:
-            absolute_path = self.links[relative_path]
+        for relative_path in self.page_links:
+            absolute_path = self.page_links[relative_path]
             if absolute_path in single_links and single_links[absolute_path] < relative_path:
                 continue
             single_links[absolute_path] = relative_path
@@ -81,30 +105,29 @@ class Parser:
             self.images[image.split(".")[0]] = image
 
     def __replace_links(self, line):
+        # Regex Pattern: [[var|name]]
         def replace_internal_link(match):
-            var = match.group(1)  # Extract the variable name from [[var]]
-            name = match.group(2)  # Extract the optional name from [[var|name]]
-            url = self.links.get(var, "404")
+            var = match.group(1) 
+            name = match.group(2)
+            url = self.page_links.get(var, "404")
 
-            # Remove longest common prefix path, to not add the current directory again
-            while url.split("/")[0] == self.current_file.split("/")[0]:
-                url = "/".join(url.split("/")[1:])
             if not self.uses_redirection:
                 url += ".html"
 
-            text = name if name else var  # Use name if it exists; otherwise, use var
-            return f"<a href='{url}'>{text}</a>"
+            text = name if name else var
+            return f"<a href='/{url}'>{text}</a>"
 
         def replace_external_link(match):
-            var = match.group(1)  # Extract the variable name from [[var]]
-            name = match.group(2)  # Extract the optional name from [[var|name]]
-            text = name if name else var  # Use name if it exists; otherwise, use var
+            var = match.group(1)
+            name = match.group(2)
+
+            text = name if name else var 
             return f"<a href='{var}'>{text}</a>"
 
         def replace_icons(match):
             name = match.group(1)
-            icon = self.icons.get(name, "404")
-            return f"<img src=/icon/{self.verison_time_stamp}/{icon} class='icon'></img>"
+            icon = self.media_links.get(name, "404")
+            return f"<img src=/{icon} class='icon'></img>"
 
         line = re.sub(r"\[\{(.+?)\}\]", replace_icons, line)
         line = re.sub(
@@ -116,24 +139,36 @@ class Parser:
 
         return line
 
-    def __replace_images(self, line):
-        def replace_internal_link(match):
-            var = match.group(1)  # Extract the variable name from [[var]]
-            width = match.group(2)  # Extract the optional name from [[var|name]]
-            url = self.images.get(var, "not_image")
-            return f"<img src=/img/{self.verison_time_stamp}/{url} alt='{var}' style='width:{width};' class='img'></img>"
+    def __replace_media(self, line):
+        # Regex Pattern: [[var|name]]
+        def replace_internal_media(match):
+            var = match.group(1) 
+            width = match.group(2)  
+            url = "/" + self.media_links.get(var, "404")
+            
+            type = url.split(".")[-1]
+            if type in ["png", "jpg", "gif"]:
+                return f"<img src={url} alt='{var}' style='width:{width};' class='img'></img>"
+            elif type in ["mp4", "webm"]:
+                return f"<video autoplay loop muted src={url} alt='{var}' style='width:{width};' class='img'></video>"
 
-        def replace_external_link(match):
-            url = match.group(1)  # Extract the variable name from [[var]]
-            width = match.group(2)  # Extract the optional name from [[var|name]]
-            return f"<img src={url} alt='{url}' style='width:{width};' class='img'></img>"
+        def replace_external_media(match):
+            url = match.group(1) 
+            width = match.group(2) 
 
+            type = url.split(".")[-1]
+            if type in ["png", "jpg", "gif"]:
+                return f"<img src={url} alt='{url}' style='width:{width};' class='img'></img>"
+            elif type in ["mp4", "webm"]:
+                return f"<video autoplay loop muted src={url} alt='{url}' style='width:{width};' class='img'></video>"
+            
         line = re.sub(
-            r"!\[\[([^\|\]]+)(?:\|([^\]]+))?\]\]", replace_internal_link, line
+            r"!\[\[([^\|\]]+)(?:\|([^\]]+))?\]\]", replace_internal_media, line
         )
         line = re.sub(
-            r"!\[\(([^\|\]]+)(?:\|([^\]]+))?\)\]", replace_external_link, line
+            r"!\[\(([^\|\]]+)(?:\|([^\]]+))?\)\]", replace_external_media, line
         )
+
 
         return line
     
@@ -217,7 +252,7 @@ class Parser:
 
         if make_header:
             header += "<tr>"
-            line = self.__replace_images(line)
+            line = self.__replace_media(line)
             line = self.__replace_links(line)
             header_names = line.split("|")
             for name in header_names:
@@ -233,7 +268,7 @@ class Parser:
                 line = self.__get_div(line, file)
 
             body += "<tr>"
-            line = self.__replace_images(line)
+            line = self.__replace_media(line)
             line = self.__replace_links(line)
             row = line.split("|")
             for name in row:
@@ -391,7 +426,7 @@ class Parser:
             element = new_elem
 
         element = self.__replace_styling(element)
-        element = self.__replace_images(element)
+        element = self.__replace_media(element)
         element = self.__replace_links(element)
 
         return (
@@ -404,7 +439,7 @@ class Parser:
         )
 
     def __parse(self, file_name: str):
-        assert file_name in self.files, f"Parser._parse: File {file_name} not found"
+        assert file_name in self.page_files, f"Parser._parse: File {file_name} not found"
 
         self.pages[file_name] = {"elements": []}
         self.pages[file_name]["front_matter"] = {

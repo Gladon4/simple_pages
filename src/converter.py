@@ -7,6 +7,7 @@ import time
 import datetime
 import configparser
 import json
+import tqdm
 
 HOME_PATH = os.getcwd()
 
@@ -57,7 +58,7 @@ class Converter:
             dirs_exist_ok=True,
         )
         shutil.copytree(
-            "resources/icon", f"{self.output_directory}/icon/{verison_time_stamp}", dirs_exist_ok=True
+            "resources/icon", f"{self.output_directory}/icon", dirs_exist_ok=True
         )
         shutil.copytree(
             "resources/img", f"{self.output_directory}/img/{verison_time_stamp}", dirs_exist_ok=True
@@ -69,27 +70,25 @@ class Converter:
         if self.uses_redirection:
             shutil.copy("resources/.htaccess",  f"{self.output_directory}/.htaccess")
 
-        if os.path.isdir(f"{self.input_directory}/icon/"):
-            shutil.copytree(
-                f"{self.input_directory}/icon",
-                f"{self.output_directory}/icon/{verison_time_stamp}",
-                dirs_exist_ok=True,
-            )
-
-        if os.path.isdir(f"{self.input_directory}/img"):
-            shutil.copytree(
-                f"{self.input_directory}/img",
-                f"{self.output_directory}/img/{verison_time_stamp}",
-                dirs_exist_ok=True,
-            )
 
         self.parser.setup(verison_time_stamp)
+        for media_file in self.parser.media_files:
+            if not os.path.isfile(f"{self.input_directory}/{media_file}"):
+                continue
+
+            os.makedirs(os.path.dirname(f"{self.output_directory}/{media_file}"), exist_ok=True)
+            shutil.copy(
+                f"{self.input_directory}/{media_file}",
+                f"{self.output_directory}/{media_file}", 
+            )
+
         with open(f"{self.output_directory}/pages.json", "w") as pages_file:
-	        json.dump(self.parser.pages_json, pages_file)
+            json.dump(self.parser.pages_json, pages_file)
 
         self.parser.parse()
 
-        for page in self.parser.pages:
+
+        for page in tqdm.tqdm(self.parser.pages, desc="Converting pages"):
             front_matter = self.parser.pages[page]["front_matter"]
 
             if "/" in page:
@@ -106,7 +105,7 @@ class Converter:
                                 <title>{title}</title>
                                 <meta charset="UTF-16">
                                 <link rel="stylesheet" href="/css/{time_stamp}/main.css">
-                                <link rel="icon" type="icon/x-icon" href="/icon/{time_stamp}/{icon}.png">
+                                <link rel="icon" type="icon/x-icon" href="/icon/{icon}.png">
 
                                 <style>
                                     @font-face {{
@@ -152,7 +151,7 @@ class Converter:
                             <p>
                                 Created with:
                                 <a href='https://github.com/Gladon4/simple_pages'>
-                                <img src='/icon/{verison_time_stamp}/github-white.png' class='icon'></img>
+                                <img src='/icon/github-white.png' class='icon'></img>
                                 Simple Pages</a> - {time_stamp}
                             </p>
                         </div>

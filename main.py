@@ -44,6 +44,7 @@ def main():
     converter = Converter(args.input_dir, 
                           args.output_dir,
                           args.redirection)
+    
     converter.convert()
 
     if not args.continuous:
