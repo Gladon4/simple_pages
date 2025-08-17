@@ -1,3 +1,14 @@
 RewriteEngine On
+DirectorySlash Off
+
+# Skip if the request is already a real file
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Match top-level requests like /page (without slash)  ^f^r /page.html
 RewriteCond %{REQUEST_FILENAME}.html -f
-RewriteRule ^([^/]+)/?$ $1.html [L]
+RewriteRule ^([^/]+)$ $1.html [L]
+
+# Match deeper paths like /page/foo  ^f^r /page/foo.html
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^(.+)/([^/]+)$ $1/$2.html [L]
