@@ -3,7 +3,7 @@ html {
   background-color: #2f3640;
   color: #dcdde1;
   font-family: 'JetBrainsMono', sans-serif;
-  font-size: 12pt;
+  font-size: 14pt;
   text-align: justify;
 }
 
@@ -81,18 +81,26 @@ footer>div {
 }
 
 .txt_small {
-  font-size: 0.8em;
+  font-size: 0.80em;
 }
 
-.txt_xsmall {
-  font-size: 0.5em;
+.txt_xs {
+  font-size: 0.65em;
 }
 
-.txt_big {
+.txt_xxs {
+  font-size: 0.50em;
+}
+
+.txt_large {
   font-size: 1.2em;
 }
 
-.txt_xbig{
+.txt_xl{
+  font-size: 1.35em;
+}
+
+.txt_xxl{
   font-size: 1.5em;
 }
 
