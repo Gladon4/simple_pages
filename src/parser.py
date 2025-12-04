@@ -22,9 +22,12 @@ class Parser:
     def setup(self, verison_time_stamp):
         self.verison_time_stamp = verison_time_stamp
         self.page_files = glob.glob(f"{self.directory}/**/*.md", recursive=True)
-        self.media_files = glob.glob(f"{self.directory}/**/*.[!md,ini]*", recursive=True)
-        self.media_files += glob.glob(f"{os.path.join(os.getcwd(),"resources","img")}/**/*.[!md,ini]*", recursive=True)
-        self.media_files += glob.glob(f"{os.path.join(os.getcwd(),"resources","icon")}/**/*.[!md,ini]*", recursive=True)
+        
+        project_media_files = glob.glob(f"{self.directory}/**/*.[!md,ini]*", recursive=True)
+        
+        global_media_files = glob.glob(f"{os.path.join(os.getcwd(),"resources","img")}/**/*.[!md,ini]*", recursive=True)
+        global_media_files += glob.glob(f"{os.path.join(os.getcwd(),"resources","icon")}/**/*.[!md,ini]*", recursive=True)
+
 
         # Removes global path and '.md'
         self.page_files = [
@@ -32,10 +35,16 @@ class Parser:
             for f in self.page_files
         ]
         # Removes global path
-        self.media_files = [
+        project_media_files = [
             "/".join(f.split("/")[len(self.directory.split("/")) :])
-            for f in self.media_files
+            for f in project_media_files
         ]
+        global_media_files = [
+            "/".join(f.split("/")[len(os.getcwd().split("/")) + 1 :])
+            for f in global_media_files
+        ]
+
+        self.media_files = project_media_files + global_media_files
 
         self.__make_links()
         self.__create_sarch_list()
