@@ -1,12 +1,12 @@
-import os
 import glob
+import os
 import re
 
 from src.text_to_ascii import T2A
 
 
 class Parser:
-    def __init__(self, directory: str, t2a: T2A, uses_redirection:bool):
+    def __init__(self, directory: str, t2a: T2A, uses_redirection: bool):
         self.directory = directory
         self.pages = {}
         self.media = {}
@@ -22,12 +22,19 @@ class Parser:
     def setup(self, verison_time_stamp):
         self.verison_time_stamp = verison_time_stamp
         self.page_files = glob.glob(f"{self.directory}/**/*.md", recursive=True)
-        
-        project_media_files = glob.glob(f"{self.directory}/**/*.[!md,ini]*", recursive=True)
-        
-        global_media_files = glob.glob(f"{os.path.join(os.getcwd(),"resources","img")}/**/*.[!md,ini]*", recursive=True)
-        global_media_files += glob.glob(f"{os.path.join(os.getcwd(),"resources","icon")}/**/*.[!md,ini]*", recursive=True)
 
+        project_media_files = glob.glob(
+            f"{self.directory}/**/*.[!md,ini]*", recursive=True
+        )
+
+        global_media_files = glob.glob(
+            f"{os.path.join(os.getcwd(), 'resources', 'img')}/**/*.[!md,ini]*",
+            recursive=True,
+        )
+        global_media_files += glob.glob(
+            f"{os.path.join(os.getcwd(), 'resources', 'icon')}/**/*.[!md,ini]*",
+            recursive=True,
+        )
 
         # Removes global path and '.md'
         self.page_files = [
@@ -79,10 +86,13 @@ class Parser:
         single_links = {}
         for relative_path in self.page_links:
             absolute_path = self.page_links[relative_path]
-            if absolute_path in single_links and single_links[absolute_path] < relative_path:
+            if (
+                absolute_path in single_links
+                and single_links[absolute_path] < relative_path
+            ):
                 continue
             single_links[absolute_path] = relative_path
-        
+
         self.pages_json = []
         for link in single_links:
             page = single_links[link]
@@ -116,7 +126,7 @@ class Parser:
     def __replace_links(self, line):
         # Regex Pattern: [[var|name]]
         def replace_internal_link(match):
-            var = match.group(1) 
+            var = match.group(1)
             name = match.group(2)
             url = self.page_links.get(var, "404")
 
@@ -130,7 +140,7 @@ class Parser:
             var = match.group(1)
             name = match.group(2)
 
-            text = name if name else var 
+            text = name if name else var
             return f"<a href='{var}'>{text}</a>"
 
         def replace_icons(match):
@@ -139,38 +149,34 @@ class Parser:
             return f"<img src=/{icon} class='icon'></img>"
 
         line = re.sub(r"\[\{(.+?)\}\]", replace_icons, line)
-        line = re.sub(
-            r"\[\[([^\|\]]+)(?:\|([^\]]+))?\]\]", replace_internal_link, line
-        )
-        line = re.sub(
-            r"\[\(([^\|\]]+)(?:\|([^\]]+))?\)\]", replace_external_link, line
-        )
+        line = re.sub(r"\[\[([^\|\]]+)(?:\|([^\]]+))?\]\]", replace_internal_link, line)
+        line = re.sub(r"\[\(([^\|\]]+)(?:\|([^\]]+))?\)\]", replace_external_link, line)
 
         return line
 
     def __replace_media(self, line):
         # Regex Pattern: [[var|name]]
         def replace_internal_media(match):
-            var = match.group(1) 
-            width = match.group(2)  
+            var = match.group(1)
+            width = match.group(2)
             url = "/" + self.media_links.get(var, "404")
-            
+
             type = url.split(".")[-1]
-            if type in ["png", "jpg", "gif"]:
+            if type in ["png", "jpg", "gif", "webp"]:
                 return f"<img src={url} alt='{var}' style='width:{width};' class='img'></img>"
             elif type in ["mp4", "webm"]:
                 return f"<video autoplay loop muted src={url} alt='{var}' style='width:{width};' class='img'></video>"
 
         def replace_external_media(match):
-            url = match.group(1) 
-            width = match.group(2) 
+            url = match.group(1)
+            width = match.group(2)
 
             type = url.split(".")[-1]
-            if type in ["png", "jpg", "gif"]:
+            if type in ["png", "jpg", "gif", "webp"]:
                 return f"<img src={url} alt='{url}' style='width:{width};' class='img'></img>"
             elif type in ["mp4", "webm"]:
                 return f"<video autoplay loop muted src={url} alt='{url}' style='width:{width};' class='img'></video>"
-            
+
         line = re.sub(
             r"!\[\[([^\|\]]+)(?:\|([^\]]+))?\]\]", replace_internal_media, line
         )
@@ -178,39 +184,31 @@ class Parser:
             r"!\[\(([^\|\]]+)(?:\|([^\]]+))?\)\]", replace_external_media, line
         )
 
-
         return line
-    
+
     def __replace_styling(self, line):
         def replace_bold(match):
-            var = match.group(1) 
+            var = match.group(1)
             return f"<strong>{var}</strong>"
-        
+
         def replace_italic(match):
-            var = match.group(1) 
+            var = match.group(1)
             return f"<i>{var}</i>"
 
         def replace_italic_bold(match):
-            var = match.group(1) 
+            var = match.group(1)
             return f"<i><strong>{var}</strong></i>"
-        
+
         if len(line) == 0:
             return line
-        
+
         # Check for invisible character to not mess up ascii art
         if line[0] == "​":
             return line
 
-        line = re.sub(
-            r"(?<!\*)\*\*([^*\n]+?)\*\*(?!\*)", replace_bold, line
-        )
-        line = re.sub(
-            r"(?<!\*)\*([^*\n]+?)\*(?!\*)", replace_italic, line
-        )
-        line = re.sub(
-            r"(?<!\*)\*\*\*([^*\n]+?)\*\*\*(?!\*)", replace_italic_bold, line
-        )
-
+        line = re.sub(r"(?<!\*)\*\*([^*\n]+?)\*\*(?!\*)", replace_bold, line)
+        line = re.sub(r"(?<!\*)\*([^*\n]+?)\*(?!\*)", replace_italic, line)
+        line = re.sub(r"(?<!\*)\*\*\*([^*\n]+?)\*\*\*(?!\*)", replace_italic_bold, line)
 
         return line
 
@@ -290,7 +288,7 @@ class Parser:
         return table
 
     def __pull_out_headings_and_paragraphs(self, element):
-        pattern = r'(<h[123456][^>]*>.*?</h[123456]>)'
+        pattern = r"(<h[123456][^>]*>.*?</h[123456]>)"
         parts = re.split(pattern, element, flags=re.DOTALL)
 
         if len(parts) <= 1:
@@ -305,7 +303,9 @@ class Parser:
                 i += 1
                 content = ""
                 # collect all non-header lines until next header or end
-                while i < len(parts) and not re.match(pattern, parts[i], flags=re.DOTALL):
+                while i < len(parts) and not re.match(
+                    pattern, parts[i], flags=re.DOTALL
+                ):
                     content += parts[i].strip()
                     i += 1
                 if content:
@@ -359,9 +359,7 @@ class Parser:
         for i in range(len(anotations)):
             if anotations[i] == "@ASCII":
                 element_filled = True
-                element = self.__ascii_annotaion(
-                    line, int(anotation_variables[i][0])
-                )
+                element = self.__ascii_annotaion(line, int(anotation_variables[i][0]))
                 classes.append("ascii")
 
             if anotations[i] == "@v_space":
@@ -371,7 +369,7 @@ class Parser:
 
             if anotations[i] == "@search":
                 element_filled = True
-                element =   """
+                element = """
                             <div class="search-container">
                                 <input type="text" id="searchInput" placeholder="Search pages..." />
                                 <ul id="results"></ul>
@@ -452,14 +450,16 @@ class Parser:
         )
 
     def __parse(self, file_name: str):
-        assert file_name in self.page_files, f"Parser._parse: File {file_name} not found"
+        assert file_name in self.page_files, (
+            f"Parser._parse: File {file_name} not found"
+        )
 
         self.pages[file_name] = {"elements": []}
         self.pages[file_name]["front_matter"] = {
             "title": "Page",
             "width": "85%",
             "ascii-font": self.t2a.default_font,
-            "icon": "page"
+            "icon": "page",
         }
 
         full_file_path = os.path.join(self.directory, file_name + ".md")
@@ -537,11 +537,21 @@ class Parser:
 
             size = size if size != 0 else new_size
 
-            ascii_art = self.t2a.string_to_ascii(line[indent:], size, self.pages[self.current_file]["front_matter"]["ascii-font"], 0.9)
+            ascii_art = self.t2a.string_to_ascii(
+                line[indent:],
+                size,
+                self.pages[self.current_file]["front_matter"]["ascii-font"],
+                0.9,
+            )
             return ascii_art
 
         else:
             assert size != 0, "Size has to be non zero if not a heading"
 
-            ascii_art = self.t2a.string_to_ascii(line, size, self.pages[self.current_file]["front_matter"]["ascii-font"], 0.9)
+            ascii_art = self.t2a.string_to_ascii(
+                line,
+                size,
+                self.pages[self.current_file]["front_matter"]["ascii-font"],
+                0.9,
+            )
             return ascii_art

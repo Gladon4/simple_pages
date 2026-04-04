@@ -1,6 +1,7 @@
-from PIL import Image, ImageDraw, ImageFont
-import numpy as np
 import random
+
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont
 
 
 class T2A:
@@ -14,13 +15,14 @@ class T2A:
         if font not in self.fonts:
             self.fonts[font] = {}
         for size in font_sizes:
-            self.fonts[font][size] = ImageFont.truetype(self.font_path + font.strip(), size)
-
+            self.fonts[font][size] = ImageFont.truetype(
+                self.font_path + font.strip(), size
+            )
 
     def string_to_ascii(self, input_string, font_size, font=None, fade_str=1.0):
         if font is None:
             font = self.default_font
-        
+
         if font not in self.fonts:
             self.__load_font(font, [font_size])
 

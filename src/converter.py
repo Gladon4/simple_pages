@@ -1,15 +1,17 @@
-from src.text_to_ascii import T2A
-from src.parser import Parser
-
+import configparser
+import datetime
+import json
 import os
 import shutil
 import time
-import datetime
-import configparser
-import json
+
 import tqdm
 
+from src.parser import Parser
+from src.text_to_ascii import T2A
+
 HOME_PATH = os.getcwd()
+
 
 class Converter:
     def __init__(self, input_directory, output_directory, uses_redirection):
@@ -19,9 +21,9 @@ class Converter:
         default_config = configparser.ConfigParser()
         custom_config = configparser.ConfigParser()
         config = configparser.ConfigParser()
-        
+
         default_config.read(os.path.join(HOME_PATH, "config.ini"))
-        config.read_dict(default_config)       
+        config.read_dict(default_config)
 
         if os.path.isfile(os.path.join(input_directory, "config.ini")):
             custom_config.read(os.path.join(input_directory, "config.ini"))
@@ -61,32 +63,36 @@ class Converter:
             "resources/icon", f"{self.output_directory}/icon", dirs_exist_ok=True
         )
         shutil.copytree(
-            "resources/img", f"{self.output_directory}/img/{verison_time_stamp}", dirs_exist_ok=True
+            "resources/img",
+            f"{self.output_directory}/img/{verison_time_stamp}",
+            dirs_exist_ok=True,
         )
         shutil.copytree(
-            "resources/js", f"{self.output_directory}/js/{verison_time_stamp}", dirs_exist_ok=True
+            "resources/js",
+            f"{self.output_directory}/js/{verison_time_stamp}",
+            dirs_exist_ok=True,
         )
 
         if self.uses_redirection:
-            shutil.copy("resources/.htaccess",  f"{self.output_directory}/.htaccess")
-
+            shutil.copy("resources/.htaccess", f"{self.output_directory}/.htaccess")
 
         self.parser.setup(verison_time_stamp)
         for media_file in self.parser.media_files:
             if not os.path.isfile(f"{self.input_directory}/{media_file}"):
                 continue
 
-            os.makedirs(os.path.dirname(f"{self.output_directory}/{media_file}"), exist_ok=True)
+            os.makedirs(
+                os.path.dirname(f"{self.output_directory}/{media_file}"), exist_ok=True
+            )
             shutil.copy(
                 f"{self.input_directory}/{media_file}",
-                f"{self.output_directory}/{media_file}", 
+                f"{self.output_directory}/{media_file}",
             )
 
         with open(f"{self.output_directory}/pages.json", "w") as pages_file:
             json.dump(self.parser.pages_json, pages_file)
 
         self.parser.parse()
-
 
         for page in tqdm.tqdm(self.parser.pages, desc="Converting pages"):
             front_matter = self.parser.pages[page]["front_matter"]
@@ -105,7 +111,7 @@ class Converter:
                                 <title>{title}</title>
                                 <meta charset="UTF-16">
                                 <link rel="stylesheet" href="/css/{time_stamp}/main.css">
-                                <link rel="icon" type="icon/x-icon" href="/icon/{icon}.png">
+                                <link rel="icon" type="icon/x-icon" href="/icon/{icon}.webp">
 
                                 <style>
                                     @font-face {{
@@ -132,7 +138,7 @@ class Converter:
                         icon=front_matter["icon"],
                         family=self.config["font"]["family"],
                         regular=self.config["font"]["regular"],
-                        bold=self.config["font"]["bold"]
+                        bold=self.config["font"]["bold"],
                     )
                 )
 
@@ -151,7 +157,7 @@ class Converter:
                             <p>
                                 Created with:
                                 <a href='https://github.com/Gladon4/simple_pages'>
-                                <img src='/icon/github-white.png' class='icon'></img>
+                                <img src='/icon/github-white.webp' class='icon'></img>
                                 Simple Pages</a> - {time_stamp}
                             </p>
                         </div>
@@ -160,7 +166,7 @@ class Converter:
                     """.format(
                         time_stamp=time_stamp,
                         verison_time_stamp=verison_time_stamp,
-                        front_page=self.parser.pages["index"]["front_matter"]["title"]
+                        front_page=self.parser.pages["index"]["front_matter"]["title"],
                     )
                 )
                 f.write("</body>")
