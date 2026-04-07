@@ -1,7 +1,8 @@
 import argparse
 import time
-from watchdog.observers import Observer
+
 from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
 
 import src.downloader as dl
 from src.converter import Converter
@@ -25,30 +26,44 @@ class Handler(FileSystemEventHandler):
             )
             self.converter.convert()
 
+
 def main():
     parser = argparse.ArgumentParser(
-                    prog='Simple Pages',
-                    description='This tool creates simple web pages from markdown like files',
-                    epilog='')
-    parser.add_argument("input_dir", help="Input Directory (needs to contain at least a index.md)")
+        prog="Simple Pages",
+        description="This tool creates simple web pages from markdown like files",
+        epilog="",
+    )
+    parser.add_argument(
+        "input_dir", help="Input Directory (needs to contain at least a index.md)"
+    )
     parser.add_argument("output_dir", help="Output Directory")
-    parser.add_argument("-r", "--redirection", default=False, required=False, action='store_true', 
-                        help="If you are using redirection from /page to /page.html on your http server, set this")
-    parser.add_argument("-c", "--continuous", default=False, required=False, action='store_true', 
-                        help="Run continuously, watching for file changes in the input directory")
+    parser.add_argument(
+        "-r",
+        "--redirection",
+        default=False,
+        required=False,
+        action="store_true",
+        help="If you are using redirection from /page to /page.html on your http server, set this",
+    )
+    parser.add_argument(
+        "-c",
+        "--continuous",
+        default=False,
+        required=False,
+        action="store_true",
+        help="Run continuously, watching for file changes in the input directory",
+    )
 
     args = parser.parse_args()
 
     dl.get_default_resources()
 
-    converter = Converter(args.input_dir, 
-                          args.output_dir,
-                          args.redirection)
+    converter = Converter(args.input_dir, args.output_dir, args.redirection)
     converter.convert()
 
     if not args.continuous:
         return
-        
+
     print("Watching for file changes")
     event_handler = Handler(converter)
 
@@ -64,5 +79,5 @@ def main():
     observer.join()
 
 
-if __name__ == "__main__":    
+if __name__ == "__main__":
     main()

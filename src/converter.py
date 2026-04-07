@@ -1,14 +1,15 @@
-from src.text_to_ascii import T2A
-from src.parser import Parser
-
+import configparser
+import datetime
+import json
 import os
 import shutil
 import time
-import datetime
-import configparser
-import json
+
+from src.parser import Parser
+from src.text_to_ascii import T2A
 
 HOME_PATH = os.getcwd()
+
 
 class Converter:
     def __init__(self, input_directory, output_directory, uses_redirection):
@@ -18,9 +19,9 @@ class Converter:
         default_config = configparser.ConfigParser()
         custom_config = configparser.ConfigParser()
         config = configparser.ConfigParser()
-        
+
         default_config.read(os.path.join(HOME_PATH, "config.ini"))
-        config.read_dict(default_config)       
+        config.read_dict(default_config)
 
         if os.path.isfile(os.path.join(input_directory, "config.ini")):
             custom_config.read(os.path.join(input_directory, "config.ini"))
@@ -57,17 +58,23 @@ class Converter:
             dirs_exist_ok=True,
         )
         shutil.copytree(
-            "resources/icon", f"{self.output_directory}/icon/{verison_time_stamp}", dirs_exist_ok=True
+            "resources/icon",
+            f"{self.output_directory}/icon/{verison_time_stamp}",
+            dirs_exist_ok=True,
         )
         shutil.copytree(
-            "resources/img", f"{self.output_directory}/img/{verison_time_stamp}", dirs_exist_ok=True
+            "resources/img",
+            f"{self.output_directory}/img/{verison_time_stamp}",
+            dirs_exist_ok=True,
         )
         shutil.copytree(
-            "resources/js", f"{self.output_directory}/js/{verison_time_stamp}", dirs_exist_ok=True
+            "resources/js",
+            f"{self.output_directory}/js/{verison_time_stamp}",
+            dirs_exist_ok=True,
         )
 
         if self.uses_redirection:
-            shutil.copy("resources/.htaccess",  f"{self.output_directory}/.htaccess")
+            shutil.copy("resources/.htaccess", f"{self.output_directory}/.htaccess")
 
         if os.path.isdir(f"{self.input_directory}/icon/"):
             shutil.copytree(
@@ -85,7 +92,7 @@ class Converter:
 
         self.parser.setup(verison_time_stamp)
         with open(f"{self.output_directory}/pages.json", "w") as pages_file:
-	        json.dump(self.parser.pages_json, pages_file)
+            json.dump(self.parser.pages_json, pages_file)
 
         self.parser.parse()
 
@@ -133,7 +140,7 @@ class Converter:
                         icon=front_matter["icon"],
                         family=self.config["font"]["family"],
                         regular=self.config["font"]["regular"],
-                        bold=self.config["font"]["bold"]
+                        bold=self.config["font"]["bold"],
                     )
                 )
 
@@ -161,7 +168,7 @@ class Converter:
                     """.format(
                         time_stamp=time_stamp,
                         verison_time_stamp=verison_time_stamp,
-                        front_page=self.parser.pages["index"]["front_matter"]["title"]
+                        front_page=self.parser.pages["index"]["front_matter"]["title"],
                     )
                 )
                 f.write("</body>")
