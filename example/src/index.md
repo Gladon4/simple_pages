@@ -7,19 +7,19 @@ title: Example Page
 Here is a paragraph.
 A second line of the paragraph.
 
-A new paragraph!
+**A new paragraph!**
 
 @ASCII
+\xsmall
 # Test
 
 \small
 \center
 Small Text
 
-\big \center \txt-center 
+\big \center \txt-center
 \width 50%
 CENTERED BIG TEXT
 
-@ASCII
-\small
-## Text
+\right
+Some right text

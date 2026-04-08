@@ -1,4 +1,5 @@
 # Simple Pages
+![](resources/icon/page.webp)
 A set of scripts to convert simple anotated Markdown files into static HTML web pages.
 
 ## Features

@@ -8,7 +8,12 @@
 		- Paragraph
 		- ASCII Text
 		- Table
+		- Columns
 		- Image Gallery?
+3. Linker
+	- Create Links between pages
+		- Default text is the title of the page
+	- Create Links to the outside
 
 **Utils**
 Downloader

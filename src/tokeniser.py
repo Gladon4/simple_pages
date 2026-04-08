@@ -1,6 +1,9 @@
+# TODO: Ignore comments
+
+
 class Tokeniser:
-    def __init__(self):
-        pass
+    def __init__(self, config):
+        self.config = config
 
     def tokenise(self, file_path):
         with open(file_path, "r") as file:
@@ -15,10 +18,18 @@ class Tokeniser:
         page["paragraphs"] = []
         for paragraph in paragraphs:
             par_type = "paragraph"
+            type_args = []
 
             if paragraph.startswith("@"):
                 par_type, paragraph = paragraph.split("\n", maxsplit=1)
                 par_type = par_type.lstrip("@")
+                type_args = par_type.split(" ")
+                par_type = type_args[0]
+                type_args = type_args[1:]
+                type_args = list(map(str.strip, type_args))
+
+                if len(type_args) > 0:
+                    type_args = ["type_args"] + type_args
 
             args = paragraph.split("\\")
             if len(args) > 1:
@@ -30,6 +41,9 @@ class Tokeniser:
                 args = list(map(lambda s: str.split(s, " "), args))
             else:
                 args = []
+
+            if type_args != []:
+                args.append(type_args)
 
             page["paragraphs"].append(
                 {"type": par_type, "args": args, "text": paragraph}

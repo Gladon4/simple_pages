@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <title> Example Page</title>
+                    <meta charset="UTF-16">
+                    <link rel="stylesheet" href="/css/36296/main.css">
+                    <link rel="icon" type="icon/x-icon" href="/icon/36296/page.webp.png">
+
+                    <style>
+                        @font-face {
+                            font-family: 'JetBrainsMono';
+                            src: url('/fonts/JetBrainsMono-Regular.ttf') format('truetype');
+                            font-weight: normal;
+                            font-style: normal;
+                        }
+
+                        @font-face {
+                            font-family: 'JetBrainsMono';
+                            src: url('/fonts/JetBrainsMono-ExtraBold.ttf') format('truetype');
+                            font-weight: bold;
+                            font-style: normal;
+                        }
+                    </style>
+                </head>
+
+                <body style="width:  70%;margin:auto">
+        # Example PageHere is a paragraph.
+A second line of the paragraph.A new paragraph!# TestSmall TextCENTERED BIG TEXT## Text
+
+        <footer>
+            <hr>
+            <div>
+                <p>
+                    Back to [[index]]
+                </p>
+                <br>
+                <p>
+                    Created with:
+                    <a href='https://github.com/Gladon4/simple_pages'>
+                    <img src='/icon/36296/github-white.png' class='icon'></img>
+                    Simple Pages</a> - 2026-04-08, 13:00
+                </p>
+            </div>
+            <script src='/js/36296/search.js'></script>
+        </footer>
+        </body>
+        
