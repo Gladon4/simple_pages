@@ -139,6 +139,10 @@ div:not(.ascii) > div {
 	white-space: pre;
 }
 
+.vspace > div {
+	min-height: var(--vspace);
+}
+
 strong {
 	font-weight: bold;
 }

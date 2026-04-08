@@ -14,6 +14,7 @@
 	- Create Links between pages
 		- Default text is the title of the page
 	- Create Links to the outside
+	- Link Images
 
 **Utils**
 Downloader

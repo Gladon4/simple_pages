@@ -1,13 +1,31 @@
-# TODO: Ignore comments
-
-
 class Tokeniser:
     def __init__(self, config):
         self.config = config
 
+    @classmethod
+    def get_args(cls, text: str):
+        args = []
+        while text.lstrip().startswith("\\"):
+            end = 1
+            while text[end] != "\\" and text[end] != "\n":
+                end += 1
+                if end == len(text):
+                    break
+            if end < len(text) and text[end] == "\\":
+                end -= 1
+            args.append(text[1:end])
+            text = text[end + 1 :]
+
+        args = list(map(str.strip, args))
+        args = list(map(lambda s: str.split(s, " "), args))
+
+        return args, text
+
     def tokenise(self, file_path):
         with open(file_path, "r") as file:
             data = file.read()
+
+        data = self.__filter_comments(data)
 
         page = {}
         page["frontmatter"], start_line = self.__get_frontmatter(data)
@@ -31,16 +49,7 @@ class Tokeniser:
                 if len(type_args) > 0:
                     type_args = ["type_args"] + type_args
 
-            args = paragraph.split("\\")
-            if len(args) > 1:
-                args = args[1:]
-                tmp = args[-1].split("\n", maxsplit=1)
-                args[-1] = tmp[0]
-                paragraph = tmp[1]
-                args = list(map(str.strip, args))
-                args = list(map(lambda s: str.split(s, " "), args))
-            else:
-                args = []
+            args, paragraph = Tokeniser.get_args(paragraph)
 
             if type_args != []:
                 args.append(type_args)
@@ -53,7 +62,7 @@ class Tokeniser:
 
     def __get_frontmatter(self, data):
         frontmatter = {}
-        if len(data.split("---")) != 3:
+        if len(data.split("---")) < 3:
             return frontmatter, 0
 
         lines = data.split("\n")
@@ -64,3 +73,22 @@ class Tokeniser:
             i += 1
 
         return frontmatter, i + 1
+
+    def __filter_comments(self, data):
+        index = 0
+        while index < len(data):
+            if data[index : index + 2] == "//":
+                end = index + 1
+                while data[end] != "\n":
+                    end += 1
+                data = data[:index] + data[end:]
+
+            if data[index : index + 2] == "/*":
+                end = index + 1
+                while data[end : end + 2] != "*/":
+                    end += 1
+                data = data[:index] + data[end + 2 :]
+
+            index += 1
+
+        return data
