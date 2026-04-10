@@ -35,6 +35,7 @@ class Tokeniser:
 
         page["paragraphs"] = []
         for paragraph in paragraphs:
+            paragraph = paragraph.lstrip()
             par_type = "paragraph"
             type_args = []
 

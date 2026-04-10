@@ -226,7 +226,7 @@ class Compiler:
             header += "</tr>"
             line += 1
 
-        while lines[line] != "":
+        while line < len(lines) and lines[line] != "":
             body += "<tr>"
             row = lines[line].split("|")
             for name in row:
@@ -255,6 +255,8 @@ class Compiler:
                 return f"<div class='{classes_str}'><div style='{styles_str}'>{self.__columns_html(paragraph, type_args)}</div></div>"
             case "table":
                 return f"<div class='{classes_str}'><div style='{styles_str}'>{self.__table_html(paragraph)}</div></div>"
+            case "raw":
+                return paragraph["text"]
 
             case _:
                 return ""

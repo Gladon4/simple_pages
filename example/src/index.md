@@ -13,6 +13,12 @@ Here is a red paragraph.
 This should be on the same line.   
 This should be on a new line.
 
+To the [[blog]]
+<a href="/blog/entry1.html">Blog</a>
+<a href="https:\/\/google.com">Blog</a>
+
+<img src="https:\/\/upload.wikimedia.org/wikipedia/commons/thumb/1/16/Artemis_II_patch.svg/960px-Artemis_II_patch.svg.png" style="width: 300px"></img>
+
 ## Heading 2
 **Some bold Text!**  
 *Italic Text*  
@@ -64,3 +70,11 @@ Lets test a table
 |3|2|
 |4|15|
 |5|7|
+
+
+@raw
+\center
+<a href="https:\/\/grille.dev">Test</a>
+You can also do raw HTML like this
+
+Test this out.

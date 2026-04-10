@@ -15,14 +15,6 @@ def main():
     )
     parser.add_argument("output_dir", help="Output Directory")
     parser.add_argument(
-        "-r",
-        "--redirection",
-        default=False,
-        required=False,
-        action="store_true",
-        help="If you are using redirection from /page to /page.html on your http server, set this",
-    )
-    parser.add_argument(
         "-c",
         "--continuous",
         default=False,
@@ -35,7 +27,7 @@ def main():
 
     dl.get_default_resources()
 
-    page_maker = pm.PageMaker(args.input_dir, args.output_dir, args.redirection)
+    page_maker = pm.PageMaker(args.input_dir, args.output_dir)
     page_maker.make()
 
     if not args.continuous:

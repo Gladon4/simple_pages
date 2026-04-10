@@ -8,16 +8,14 @@ import time
 import tqdm
 
 import src.compiler as cmp
+import src.linker as lnk
 import src.tokeniser as tok
-
-# from src.text_to_ascii import T2A
 
 
 class PageMaker:
-    def __init__(self, input_dir, output_dir, redirection):
+    def __init__(self, input_dir, output_dir):
         self.input_dir = input_dir
         self.output_dir = output_dir
-        self.redirection = redirection
 
         default_config = configparser.ConfigParser()
         custom_config = configparser.ConfigParser()
@@ -32,25 +30,31 @@ class PageMaker:
 
         self.config = config
 
+        self.redirection = config["behavior"]["redirection"] == "true"
         self.default_page_font = config["font"]["regular"]
         self.default_bold_font = config["font"]["bold"]
         self.default_ascii_font = config["font"]["ascii"]
 
-        # self.t2a = T2A("resources/fonts/", config["font"]["ascii"], [20, 30, 40, 50])
-
-        self.tokeniser = tok.Tokeniser(self.config)
-        self.compiler = cmp.Compiler(self.config)
-
         self.time_stamp = datetime.datetime.now().strftime("%Y-%m-%d, %H:%M")
         self.verison_time_stamp = int((time.time() * 1000) % 1000000)
 
-        self.files = glob.glob(f"{self.input_dir}/**/*.md", recursive=True)
-        self.files = [
+        self.md_files = glob.glob(f"{self.input_dir}/**/*.md", recursive=True)
+        self.md_files = [
             "/".join(f.split("/")[len(self.input_dir.split("/")) :])[:-3]
-            for f in self.files
+            for f in self.md_files
         ]
 
-        if "index" not in self.files:
+        self.all_files = glob.glob(f"{self.input_dir}/**/*.*", recursive=True)
+        self.all_files = [
+            "/".join(f.split("/")[len(self.input_dir.split("/")) :])
+            for f in self.all_files
+        ]
+
+        self.tokeniser = tok.Tokeniser(self.config)
+        self.compiler = cmp.Compiler(self.config)
+        self.linker = lnk.Linker(self.config, self.all_files)
+
+        if "index" not in self.md_files:
             assert False, "index.md not present in input directory."
 
     def __copy_resources(self):
@@ -114,9 +118,11 @@ class PageMaker:
     def make(self):
         pages = []
 
-        for file in tqdm.tqdm(self.files, desc="Tokeniser"):
-            page = self.tokeniser.tokenise(os.path.join(self.input_dir, file + ".md"))
-            page["file"] = file
+        for md_file in tqdm.tqdm(self.md_files, desc="Tokeniser"):
+            page = self.tokeniser.tokenise(
+                os.path.join(self.input_dir, md_file + ".md")
+            )
+            page["file"] = md_file
             page["frontmatter"] = {
                 **self.__default_frontmatter(),
                 **page["frontmatter"],
@@ -124,7 +130,7 @@ class PageMaker:
 
             pages.append(page)
 
-        # print(pages[0])
+        self.linker.pages = pages
 
         html_pages = {}
         for page in tqdm.tqdm(pages, desc="Compilser"):
@@ -132,20 +138,17 @@ class PageMaker:
                 page, self.time_stamp, self.verison_time_stamp
             )
 
-        # print(html_pages)
-
-        #####
-        # LINKER
-        #####
+        for page_file in tqdm.tqdm(html_pages, desc="Linker"):
+            html_pages[page_file] = self.linker.link(html_pages[page_file])
 
         self.__copy_resources()
 
-        for file in html_pages:
-            if "/" in file:
+        for md_file in html_pages:
+            if "/" in md_file:
                 os.makedirs(
-                    os.path.join(self.output_dir, os.path.dirname(file)),
+                    os.path.join(self.output_dir, os.path.dirname(md_file)),
                     exist_ok=True,
                 )
 
-            with open(os.path.join(self.output_dir, file + ".html"), "w") as f:
-                f.write(html_pages[file])
+            with open(os.path.join(self.output_dir, md_file + ".html"), "w") as f:
+                f.write(html_pages[md_file])
