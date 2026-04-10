@@ -54,4 +54,13 @@ Some Text For the column
 ___
 some other things
 
-Test
+Lets test a table
+
+@table
+\center \width 50% \txt-center
+|Day|Sleep in h|
+|1|10|
+|2|8|
+|3|2|
+|4|15|
+|5|7|

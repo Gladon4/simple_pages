@@ -1,4 +1,5 @@
 import re
+from logging import makeLogRecord
 
 from src.text_to_ascii import T2A
 from src.tokeniser import Tokeniser
@@ -202,12 +203,48 @@ class Compiler:
 
         return f"<div style='grid-template-columns: {' '.join(col + 'fr' for col in col_widths)};' class='col_wrapper'>{content}</div>"
 
+    def __table_html(self, paragraph):
+        header = ""
+        body = ""
+        lines = paragraph["text"].split("\n")
+
+        make_header = self.__get_arg_values(paragraph["args"], "type_args")
+        if make_header is None or make_header[0] == "":
+            make_header = True
+        else:
+            make_header = make_header[0].lower() == "true"
+
+        line = 0
+
+        if make_header:
+            header += "<tr>"
+            header_names = lines[line].split("|")
+            for name in header_names:
+                if len(name) == 0:
+                    continue
+                header += f"<th>{name.strip()}</th>"
+            header += "</tr>"
+            line += 1
+
+        while lines[line] != "":
+            body += "<tr>"
+            row = lines[line].split("|")
+            for name in row:
+                if len(name) == 0:
+                    continue
+                body += f"<td>{name.strip()}</td>"
+            body += "</tr>"
+            line += 1
+
+        table = f"<table>{header}{body}</table>"
+
+        return table
+
     def __make_html(self, paragraph, ascii_font):
         classes_str, styles_str, type_args = self.__get_classes_and_styles(
             paragraph["args"]
         )
 
-        # TODO: Table type
         # TODO: codeblock?
         match paragraph["type"]:
             case "paragraph":
@@ -216,6 +253,8 @@ class Compiler:
                 return f"<div class='ascii {classes_str}'><div style='{styles_str}'>{self.__ascii_html(paragraph, ascii_font)}</div></div>"
             case "columns":
                 return f"<div class='{classes_str}'><div style='{styles_str}'>{self.__columns_html(paragraph, type_args)}</div></div>"
+            case "table":
+                return f"<div class='{classes_str}'><div style='{styles_str}'>{self.__table_html(paragraph)}</div></div>"
 
             case _:
                 return ""
