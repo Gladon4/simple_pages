@@ -1,5 +1,4 @@
 import re
-from logging import makeLogRecord
 
 from src.text_to_ascii import T2A
 from src.tokeniser import Tokeniser
@@ -13,14 +12,14 @@ class Compiler:
             "resources/fonts/", self.config["font"]["ascii"], [20, 30, 40, 50]
         )
 
-    def __header_html(self, page, version_time_stamp):
+    def __header_html(self, page):
         return """<!DOCTYPE html>
                 <html lang="en">
                 <head>
                     <title>{title}</title>
                     <meta charset="UTF-16">
-                    <link rel="stylesheet" href="/css/{version_time_stamp}/main.css">
-                    <link rel="icon" type="icon/x-icon" href="/icon/{version_time_stamp}/{icon}">
+                    <link rel="stylesheet" href="/css/main.css">
+                    <link rel="icon" type="icon/x-icon" href="[{icon}]">
 
                     <style>
                         @font-face {{
@@ -43,16 +42,14 @@ class Compiler:
         """.format(
             title=page["frontmatter"]["title"],
             width=page["frontmatter"]["width"],
-            version_time_stamp=version_time_stamp,
-            icon=page["frontmatter"]["icon"],
+            icon=page["frontmatter"]["icon"].lstrip(),
             family=self.config["font"]["family"],
             regular=self.config["font"]["regular"],
             bold=self.config["font"]["bold"],
         )
 
-    def __footer_html(self, page, time_stamp, version_time_stamp):
-        return """
-        <footer>
+    def __footer_html(self, page, time_stamp):
+        return """<footer>
             <hr>
             <div>
                 <p>
@@ -61,15 +58,15 @@ class Compiler:
                 <br>
                 <p>
                     Created with:
-                    <a href='https://github.com/Gladon4/simple_pages'>
-                    <img src='/icon/{verison_time_stamp}/github-white.webp' class='icon'></img>
-                    Simple Pages</a> - {time_stamp}
+                    [[https://github.com/Gladon4/simple_pages|[{icon}] Simple Pages]] - {time_stamp}
                 </p>
             </div>
-            <script src='/js/{verison_time_stamp}/search.js'></script>
+            <script src='/js/search.js'></script>
         </footer>
-        </body>
-        """.format(time_stamp=time_stamp, verison_time_stamp=version_time_stamp)
+        </body>""".format(
+            icon="{github-white}",
+            time_stamp=time_stamp,
+        )
 
     def __get_classes_and_styles(self, p_args):
         classes = ""
@@ -261,13 +258,13 @@ class Compiler:
             case _:
                 return ""
 
-    def compile(self, page, time_stamp, version_time_stamp):
+    def compile(self, page, time_stamp):
         html_str = ""
-        html_str += self.__header_html(page, version_time_stamp)
+        html_str += self.__header_html(page)
 
         for paragraph in page["paragraphs"]:
             html_str += self.__make_html(paragraph, page["frontmatter"]["ascii-font"])
 
-        html_str += self.__footer_html(page, time_stamp, version_time_stamp)
+        html_str += self.__footer_html(page, time_stamp)
 
         return html_str

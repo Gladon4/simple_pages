@@ -1,12 +1,14 @@
 ---
 title: Example Page
 width: 75%
+icon: logo.png
 ---
 
 # Example Page
 
 \width 50%
 ___
+
 
 \color red
 Here is a red paragraph.

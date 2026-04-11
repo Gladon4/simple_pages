@@ -36,7 +36,7 @@ class PageMaker:
         self.default_ascii_font = config["font"]["ascii"]
 
         self.time_stamp = datetime.datetime.now().strftime("%Y-%m-%d, %H:%M")
-        self.verison_time_stamp = int((time.time() * 1000) % 1000000)
+        # self.verison_time_stamp = int((time.time() * 1000) % 1000000)
 
         self.md_files = glob.glob(f"{self.input_dir}/**/*.md", recursive=True)
         self.md_files = [
@@ -44,11 +44,15 @@ class PageMaker:
             for f in self.md_files
         ]
 
-        self.all_files = glob.glob(f"{self.input_dir}/**/*.*", recursive=True)
-        self.all_files = [
+        input_files = glob.glob(f"{self.input_dir}/**/*.*", recursive=True)
+        input_files = [
             "/".join(f.split("/")[len(self.input_dir.split("/")) :])
-            for f in self.all_files
+            for f in input_files
         ]
+        default_files = glob.glob("resources/**/*.*", recursive=True)
+        default_files = [f.removeprefix("resources/") for f in default_files]
+
+        self.all_files = input_files + default_files
 
         self.tokeniser = tok.Tokeniser(self.config)
         self.compiler = cmp.Compiler(self.config)
@@ -71,41 +75,22 @@ class PageMaker:
         )
         shutil.copytree(
             "resources/css",
-            f"{self.output_dir}/css/{self.verison_time_stamp}",
+            f"{self.output_dir}/css",
             dirs_exist_ok=True,
         )
         shutil.copytree(
-            "resources/icon",
-            f"{self.output_dir}/icon/{self.verison_time_stamp}",
-            dirs_exist_ok=True,
-        )
-        shutil.copytree(
-            "resources/img",
-            f"{self.output_dir}/img/{self.verison_time_stamp}",
+            "resources/media",
+            f"{self.output_dir}/media",
             dirs_exist_ok=True,
         )
         shutil.copytree(
             "resources/js",
-            f"{self.output_dir}/js/{self.verison_time_stamp}",
+            f"{self.output_dir}/js",
             dirs_exist_ok=True,
         )
 
         if self.redirection:
             shutil.copy("resources/.htaccess", f"{self.output_dir}/.htaccess")
-
-        if os.path.isdir(f"{self.input_dir}/icon/"):
-            shutil.copytree(
-                f"{self.input_dir}/icon",
-                f"{self.output_dir}/icon/{self.verison_time_stamp}",
-                dirs_exist_ok=True,
-            )
-
-        if os.path.isdir(f"{self.input_dir}/img"):
-            shutil.copytree(
-                f"{self.input_dir}/img",
-                f"{self.output_dir}/img/{self.verison_time_stamp}",
-                dirs_exist_ok=True,
-            )
 
     def __default_frontmatter(self):
         return {
@@ -134,9 +119,7 @@ class PageMaker:
 
         html_pages = {}
         for page in tqdm.tqdm(pages, desc="Compilser"):
-            html_pages[page["file"]] = self.compiler.compile(
-                page, self.time_stamp, self.verison_time_stamp
-            )
+            html_pages[page["file"]] = self.compiler.compile(page, self.time_stamp)
 
         for page_file in tqdm.tqdm(html_pages, desc="Linker   "):
             html_pages[page_file] = self.linker.link(html_pages[page_file])

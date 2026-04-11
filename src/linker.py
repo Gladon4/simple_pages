@@ -34,6 +34,11 @@ class Linker:
         return links
 
     def __replace_rendered(self, html_page):
+        """
+        ![[var|width]] -> becomes an image with path var and width width
+        if it is a web page it becaomes an iframe ie an "image" of a web page
+        """
+
         def replace_internal_link(match):
             var = match.group(1)  # Extract the variable name from [[var]]
             width = match.group(2)  # Extract the optional name from [[var|size]]
@@ -62,7 +67,12 @@ class Linker:
         return html_page
 
     def __replace_link(self, html_page):
-        def replace_internal_link(match):
+        """
+        [[var|name]] -> becomes a link to var with the text of name
+        if var is a local page name is by default the page title
+        """
+
+        def replace_link(match):
             var = match.group(1)  # Extract the variable name from [[var]]
             name = match.group(2)  # Extract the optional name from [[var|name]]
 
@@ -89,12 +99,18 @@ class Linker:
                 return f"<a href='{target}'>{name}</a>"
 
         html_page = re.sub(
-            r"\[\[([^\|\]]+)(?:\|([^\]]+))?\]\]", replace_internal_link, html_page
+            r"\[\[([^\|\]]+)(?:\|([^\]]+))?\]\]", replace_link, html_page
         )
 
         return html_page
 
     def __replace_icon(self, html_page):
+        """
+        special case of image replacement
+        [{name}] -> becomes an image with path name
+        and class icon, which makes it the size of text
+        """
+
         def replace_icons(match):
             name = match.group(1)
             target = self.links.get(name, name)
@@ -111,9 +127,29 @@ class Linker:
 
         return html_page
 
+    def __replace_tags(self, html_page):
+        """
+        [tag] -> becomes the local path to this file if existent
+        """
+
+        def replace_tag(match):
+            tag = match.group(1)
+            target = self.links.get(tag, tag)
+
+            if utils.is_link_local(target):
+                target = f"/{target}"
+
+            return target
+
+        html_page = re.sub(r"\[(.+?)\]", replace_tag, html_page)
+
+        return html_page
+
     def link(self, html_page):
         html_page = self.__replace_rendered(html_page)
         html_page = self.__replace_icon(html_page)
         html_page = self.__replace_link(html_page)
+
+        html_page = self.__replace_tags(html_page)
 
         return html_page
