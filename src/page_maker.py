@@ -138,7 +138,7 @@ class PageMaker:
                 page, self.time_stamp, self.verison_time_stamp
             )
 
-        for page_file in tqdm.tqdm(html_pages, desc="Linker"):
+        for page_file in tqdm.tqdm(html_pages, desc="Linker   "):
             html_pages[page_file] = self.linker.link(html_pages[page_file])
 
         self.__copy_resources()
