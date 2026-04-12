@@ -13,7 +13,7 @@ def is_html(file_path):
 
 
 def is_video(file_path):
-    video_extensions = [".mp4", ".avi", ".mov", ".mkv"]
+    video_extensions = [".mp4", ".avi", ".mov", ".mkv", "webm"]
 
     return any(file_path.endswith(ext) for ext in video_extensions)
 

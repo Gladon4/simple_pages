@@ -1,153 +1,158 @@
 html {
-  font-variant-ligatures: none;
-  background-color: #2f3640;
-  color: #dcdde1;
-  font-family: "JetBrainsMono", sans-serif;
-  font-size: 12pt;
-  text-align: justify;
+	font-variant-ligatures: none;
+	background-color: #2f3640;
+	color: #dcdde1;
+	font-family: "JetBrainsMono", sans-serif;
+	font-size: 14pt;
+	text-align: justify;
 }
 
 table {
-  width: 100%;
-  margin: auto;
-  text-align: left;
+	width: 100%;
+	margin: auto;
+	text-align: left;
 }
 
 tr {
-  margin: auto;
+	margin: auto;
 }
 
 .inverted:has(div) > div,
 .inverted:not(:has(div)) {
-  color: #2f3640;
-  background-color: #dcdde1;
+	color: #2f3640;
+	background-color: #dcdde1;
 }
 
 .small_bar > hr {
-  width: 60%;
+	width: 60%;
 }
 
 .rounded:has(div) > div,
 .rounded:not(:has(div)) {
-  border-radius: 0.3em;
+	border-radius: 0.3em;
 }
 
 a {
-  color: #f5f6fa;
+	color: #f5f6fa;
 }
 
 p {
-  margin: 0.25em;
+	margin: 0.25em;
 }
 
 .inverted a {
-  color: #192a56;
+	color: #192a56;
 }
 
 footer {
-  width: 100%;
-  left: 0;
-  position: absolute;
-  height: 100px;
-  background-color: #353b48;
+	width: 100%;
+	left: 0;
+	position: absolute;
+	height: 100px;
+	background-color: #353b48;
 }
 
 footer > hr {
-  width: 95%;
-  margin: 5, auto;
+	width: 95%;
+	margin: 5, auto;
 }
 
 footer > div {
-  width: 80%;
-  margin: auto;
+	width: 80%;
+	margin: auto;
 }
 
 .icon {
-  width: 1em;
-  height: 1em;
+	width: 1em;
+	height: 1em;
 }
 
 .img {
-  object-fit: cover;
-  width: 100%;
+	object-fit: cover;
+	width: 100%;
+}
+
+.video {
+	object-fit: cover;
+	width: 100%;
 }
 
 .col_wrapper {
-  display: grid;
-  position: relative;
+	display: grid;
+	position: relative;
 }
 
 .col_container {
-  position: relative;
-  width: 97%;
+	position: relative;
+	width: 97%;
 }
 
 .small {
-  font-size: 0.8em;
+	font-size: 0.8em;
 }
 
 .xsmall {
-  font-size: 0.5em;
+	font-size: 0.6em;
 }
 
 .big {
-  font-size: 1.2em;
+	font-size: 1.2em;
 }
 
 .xbig {
-  font-size: 1.5em;
+	font-size: 1.4em;
 }
 
 .center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 .left {
-  display: flex;
-  justify-content: left;
-  align-items: left;
+	display: flex;
+	justify-content: left;
+	align-items: left;
 }
 
 .right {
-  display: flex;
-  justify-content: right;
-  align-items: right;
+	display: flex;
+	justify-content: right;
+	align-items: right;
 }
 
 .txt-center > div,
 .txt-center,
 .txt-center > div > table {
-  text-align: center;
+	text-align: center;
 }
 
 .txt-left > div,
 .txt-left,
 .txt-left > div > table {
-  text-align: left;
+	text-align: left;
 }
 
 .txt-right > div,
 .txt-right,
 .txt-right > div > table {
-  text-align: right;
+	text-align: right;
 }
 
 div:not(.ascii) > div {
-  line-height: 1.5;
+	line-height: 1.5;
 }
 
 .ascii {
-  white-space: pre;
+	white-space: pre;
 }
 
 .vspace > div {
-  min-height: var(--vspace);
+	min-height: var(--vspace);
 }
 
 strong {
-  font-weight: bold;
+	font-weight: bold;
 }
 
 h1,
@@ -156,53 +161,53 @@ h3,
 h4,
 h5,
 h6 {
-  font-weight: normal;
-  margin: 0.25em;
+	font-weight: normal;
+	margin: 0.25em;
 }
 
 .search-container {
-  position: relative;
+	position: relative;
 }
 
 #searchInput {
-  width: 100%;
-  padding: 5px;
-  font-size: 16px;
-  box-sizing: border-box;
-  color: #2f3640;
-  background-color: #dcdde1;
+	width: 100%;
+	padding: 5px;
+	font-size: 16px;
+	box-sizing: border-box;
+	color: #2f3640;
+	background-color: #dcdde1;
 }
 
 #results {
-  position: absolute;
-  top: 100%; /* below input */
-  left: 0;
-  width: 95%;
-  color: #2f3640;
-  background-color: #dcdde1;
-  list-style: none;
-  margin: 0;
-  padding: 5px;
-  border: 1px solid #ccc;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  display: none; /* hide by default */
-  z-index: 1000;
-  max-height: 200px;
-  overflow-y: auto;
+	position: absolute;
+	top: 100%; /* below input */
+	left: 0;
+	width: 95%;
+	color: #2f3640;
+	background-color: #dcdde1;
+	list-style: none;
+	margin: 0;
+	padding: 5px;
+	border: 1px solid #ccc;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	display: none; /* hide by default */
+	z-index: 1000;
+	max-height: 200px;
+	overflow-y: auto;
 }
 
 #results li {
-  padding: 5px;
-  cursor: pointer;
-  color: black;
+	padding: 5px;
+	cursor: pointer;
+	color: black;
 }
 
 #results a {
-  color: black;
-  /*text-decoration: none;*/
-  display: block; /* Makes the entire list item clickable */
+	color: black;
+	/*text-decoration: none;*/
+	display: block; /* Makes the entire list item clickable */
 }
 
 #results li:hover {
-  background-color: #eee;
+	background-color: #eee;
 }

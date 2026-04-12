@@ -18,6 +18,9 @@ class PageMaker:
         self.input_dir = input_dir
         self.output_dir = output_dir
 
+        self.setup()
+
+    def setup(self):
         default_config = configparser.ConfigParser()
         custom_config = configparser.ConfigParser()
         config = configparser.ConfigParser()
@@ -25,8 +28,8 @@ class PageMaker:
         default_config.read(os.path.join(os.getcwd(), "config.ini"))
         config.read_dict(default_config)
 
-        if os.path.isfile(os.path.join(input_dir, "config.ini")):
-            custom_config.read(os.path.join(input_dir, "config.ini"))
+        if os.path.isfile(os.path.join(self.input_dir, "config.ini")):
+            custom_config.read(os.path.join(self.input_dir, "config.ini"))
             config.read_dict(custom_config)
 
         self.config = config

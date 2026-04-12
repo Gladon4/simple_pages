@@ -56,7 +56,7 @@ class Linker:
             elif utils.is_image(target):
                 return f"<img src={target} alt='{var}' style='width:{width};' class='img'></img>"
             elif utils.is_video(target):
-                return f"<video src={target} alt='{var}' style='width:{width};' class='video'></video>"
+                return f"<video src={target} alt='{var}' autoplay loop muted style='width:{width};' class='video'></video>"
             else:
                 return f"<iframe src={target} height=800px width={width} style='border:none;' ></iframe>"
 
@@ -93,6 +93,8 @@ class Linker:
                 return f"<a href='/{target}'>{name}</a>"
 
             else:
+                if utils.is_link_local(target):
+                    target = f"/{target}"
                 if name is None:
                     name = var
 

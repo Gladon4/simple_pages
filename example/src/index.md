@@ -56,7 +56,7 @@ CENTERED BIG TEXT
 \right
 Some right text
 
-@columns 2 1
+@columns 2 1 
 \center \width 50% 
 @
 \big

@@ -52,6 +52,7 @@ class Tokeniser:
                 par_type = type_args[0]
                 type_args = type_args[1:]
                 type_args = list(map(str.strip, type_args))
+                type_args = [arg for arg in type_args if arg != ""]
 
                 if len(type_args) > 0:
                     type_args = ["type_args"] + type_args

@@ -1,6 +1,10 @@
 import argparse
+import time
+
+from watchdog.observers import Observer
 
 import src.downloader as dl
+import src.handler as hdl
 import src.page_maker as pm
 
 
@@ -34,18 +38,18 @@ def main():
         return
 
     print("Watching for file changes")
-    # event_handler = Handler(converter)
+    event_handler = hdl.Handler(page_maker)
 
-    # observer = Observer()
-    # observer.schedule(event_handler, args.input_dir, recursive=True)
+    observer = Observer()
+    observer.schedule(event_handler, args.input_dir, recursive=True)
 
-    # observer.start()
-    # try:
-    #     while True:
-    #         time.sleep(1)
-    # except KeyboardInterrupt:
-    #     observer.stop()
-    # observer.join()
+    observer.start()
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.stop()
+    observer.join()
 
 
 if __name__ == "__main__":
