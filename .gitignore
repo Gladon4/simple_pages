@@ -5,3 +5,4 @@ export
 test_page
 __pycache__
 uv.lock
+example/out
