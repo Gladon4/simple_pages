@@ -237,6 +237,18 @@ class Compiler:
 
         return table
 
+    def __search_bar_html(self, paragraph):
+        scope = self.__get_arg_values(paragraph["args"], "type_args")
+        if scope is None:
+            scope = "/"
+        else:
+            scope = scope[0].strip()
+
+        return f"""<div class="search-container" data-scope="{scope}">
+                    <input type="text" id="searchInput" placeholder="Search pages..." />
+                    <ul id="results"></ul>
+                  </div>"""
+
     def __make_html(self, paragraph, ascii_font):
         classes_str, styles_str, type_args = self.__get_classes_and_styles(
             paragraph["args"]
@@ -254,9 +266,11 @@ class Compiler:
                 return f"<div class='{classes_str}'><div style='{styles_str}'>{self.__table_html(paragraph)}</div></div>"
             case "raw":
                 return paragraph["text"]
+            case "search":
+                return f"<div class='{classes_str}'><div style='{styles_str}'>{self.__search_bar_html(paragraph)}</div></div>"
 
             case _:
-                return ""
+                return paragraph["text"]
 
     def compile(self, page, time_stamp):
         html_str = ""

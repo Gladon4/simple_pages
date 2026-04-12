@@ -15,7 +15,11 @@ Here is a red paragraph.
 This should be on the same line.   
 This should be on a new line.
 
-To the [[entry1|[{logo}]Blog]]  
+@search
+\width 50% \center
+
+To the [[entry1]]   
+To the [[blog/index]]  
 To [[https:\/\/google.com|google]]  
 
 ![[logo|200px]]  

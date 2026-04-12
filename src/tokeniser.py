@@ -40,7 +40,13 @@ class Tokeniser:
             type_args = []
 
             if paragraph.startswith("@"):
-                par_type, paragraph = paragraph.split("\n", maxsplit=1)
+                split = paragraph.split("\n", maxsplit=1)
+                if len(split) >= 2:
+                    par_type, paragraph = split
+                else:
+                    par_type = split[0]
+                    paragraph = ""
+
                 par_type = par_type.lstrip("@")
                 type_args = par_type.split(" ")
                 par_type = type_args[0]
@@ -70,7 +76,7 @@ class Tokeniser:
         i = 1
         while "---" not in lines[i]:
             content = lines[i].split(":")
-            frontmatter[content[0]] = content[1]
+            frontmatter[content[0]] = content[1].lstrip()
             i += 1
 
         return frontmatter, i + 1

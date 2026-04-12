@@ -1,6 +1,7 @@
 import configparser
 import datetime
 import glob
+import json
 import os
 import shutil
 
@@ -9,6 +10,7 @@ import tqdm
 import src.compiler as cmp
 import src.linker as lnk
 import src.tokeniser as tok
+import src.utils as utils
 
 
 class PageMaker:
@@ -91,6 +93,18 @@ class PageMaker:
         if self.redirection:
             shutil.copy("resources/.htaccess", f"{self.output_dir}/.htaccess")
 
+        for media_file in [f for f in self.all_files if not utils.is_md(f)]:
+            if not os.path.isfile(f"{self.input_dir}/{media_file}"):
+                continue
+
+            os.makedirs(
+                os.path.dirname(f"{self.output_dir}/{media_file}"), exist_ok=True
+            )
+            shutil.copy(
+                f"{self.input_dir}/{media_file}",
+                f"{self.output_dir}/{media_file}",
+            )
+
     def __default_frontmatter(self):
         return {
             "title": "Page",
@@ -98,6 +112,19 @@ class PageMaker:
             "icon": "page.webp",
             "ascii-font": self.config["font"]["ascii"],
         }
+
+    def __create_search_json(self, pages):
+        search_json = []
+        for page in pages:
+            name = page["frontmatter"]["title"]
+            path = f"/{page['file']}"
+            if not self.redirection:
+                path += ".html"
+
+            search_json.append({"name": name, "path": path})
+
+        with open(f"{self.output_dir}/pages.json", "w") as search_file:
+            json.dump(search_json, search_file)
 
     def make(self):
         pages = []
@@ -124,6 +151,7 @@ class PageMaker:
             html_pages[page_file] = self.linker.link(html_pages[page_file])
 
         self.__copy_resources()
+        self.__create_search_json(pages)
 
         for md_file in html_pages:
             if "/" in md_file:
