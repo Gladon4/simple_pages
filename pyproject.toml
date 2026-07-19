@@ -1,6 +1,6 @@
 [project]
 name = "simple-pages"
-version = "0.2.0"
+version = "0.2.1"
 description = "A python tool to create simple websites"
 readme = "README.md"
 requires-python = ">=3.13"

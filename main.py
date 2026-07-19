@@ -1,4 +1,5 @@
 import argparse
+import threading
 import time
 
 from watchdog.observers import Observer
@@ -6,6 +7,7 @@ from watchdog.observers import Observer
 import src.downloader as dl
 import src.handler as hdl
 import src.page_maker as pm
+from src.server import start_http_server
 
 
 def main():
@@ -27,6 +29,21 @@ def main():
         help="Run continuously, watching for file changes in the input directory",
     )
 
+    parser.add_argument(
+        "--http",
+        default=False,
+        required=False,
+        action="store_true",
+        help="Start an HTTP Server in the output directory",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=8080,
+        required=False,
+        help="Port for the HTTP server (default: 8080)",
+    )
+
     args = parser.parse_args()
 
     dl.get_default_resources()
@@ -34,7 +51,23 @@ def main():
     page_maker = pm.PageMaker(args.input_dir, args.output_dir)
     page_maker.make()
 
+    http_thread = None
+    if args.http:
+        http_thread = threading.Thread(
+            target=start_http_server,
+            args=(args.output_dir, args.port),
+            daemon=True,
+        )
+        http_thread.start()
+
     if not args.continuous:
+        if args.http:
+            print("Press Ctrl+C to stop")
+            try:
+                while True:
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                pass
         return
 
     print("Watching for file changes")
