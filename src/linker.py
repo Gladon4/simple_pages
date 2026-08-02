@@ -52,7 +52,7 @@ class Linker:
                 target = target.replace(".md", ".html")
 
             if utils.is_html(target):
-                return f"<iframe src={target} height=800px width={width} style='border:none;' ></iframe>"
+                return f"<iframe src={target} height={width} width=100% style='border:none;' ></iframe>"
             elif utils.is_image(target):
                 return f"<img src={target} alt='{var}' style='width:{width};' class='img'></img>"
             elif utils.is_video(target):
