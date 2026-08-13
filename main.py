@@ -48,7 +48,20 @@ def main():
 
     dl.get_default_resources()
 
-    page_maker = pm.PageMaker(args.input_dir, args.output_dir)
+    reload_script = ""
+    if args.continuous and args.http:
+        reload_script = """<script>
+                            (function() {
+                                function poll() {
+                                fetch('/reload').then(r => {
+                                    if (r.status === 200) location.reload();
+                                }).catch(() => {});
+                                }
+                                setInterval(poll, 200);
+                            })();
+                        </script>"""
+
+    page_maker = pm.PageMaker(args.input_dir, args.output_dir, reload_script)
     page_maker.make()
 
     http_thread = None

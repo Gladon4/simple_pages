@@ -14,9 +14,10 @@ import src.utils as utils
 
 
 class PageMaker:
-    def __init__(self, input_dir, output_dir):
+    def __init__(self, input_dir, output_dir, reload_script=""):
         self.input_dir = input_dir
         self.output_dir = output_dir
+        self.reload_script = reload_script
 
         self.setup()
 
@@ -148,7 +149,9 @@ class PageMaker:
 
         html_pages = {}
         for page in tqdm.tqdm(pages, desc="Compilser"):
-            html_pages[page["file"]] = self.compiler.compile(page, self.time_stamp)
+            html_pages[page["file"]] = self.compiler.compile(
+                page, self.time_stamp, self.reload_script
+            )
 
         for page_file in tqdm.tqdm(html_pages, desc="Linker   "):
             html_pages[page_file] = self.linker.link(html_pages[page_file])
@@ -156,7 +159,7 @@ class PageMaker:
         self.__copy_resources()
         self.__create_search_json(pages)
 
-        for md_file in html_pages:
+        for md_file, value in html_pages.items():
             if "/" in md_file:
                 os.makedirs(
                     os.path.join(self.output_dir, os.path.dirname(md_file)),
@@ -164,4 +167,4 @@ class PageMaker:
                 )
 
             with open(os.path.join(self.output_dir, md_file + ".html"), "w") as f:
-                f.write(html_pages[md_file])
+                f.write(value)

@@ -48,7 +48,7 @@ class Compiler:
             bold=self.config["font"]["bold"],
         )
 
-    def __footer_html(self, page, time_stamp):
+    def __footer_html(self, page, time_stamp, reload_script=""):
         return """<footer>
             <hr>
             <div>
@@ -62,10 +62,12 @@ class Compiler:
                 </p>
             </div>
             <script src='/js/search.js'></script>
+            {reload_script}
         </footer>
         </body>""".format(
             icon="{github-white}",
             time_stamp=time_stamp,
+            reload_script=reload_script,
         )
 
     def __get_classes_and_styles(self, p_args):
@@ -272,13 +274,13 @@ class Compiler:
             case _:
                 return paragraph["text"]
 
-    def compile(self, page, time_stamp):
+    def compile(self, page, time_stamp, reload_script=""):
         html_str = ""
         html_str += self.__header_html(page)
 
         for paragraph in page["paragraphs"]:
             html_str += self.__make_html(paragraph, page["frontmatter"]["ascii-font"])
 
-        html_str += self.__footer_html(page, time_stamp)
+        html_str += self.__footer_html(page, time_stamp, reload_script)
 
         return html_str

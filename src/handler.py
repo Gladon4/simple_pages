@@ -1,5 +1,7 @@
 from watchdog.events import FileSystemEventHandler
 
+from src.server import state
+
 
 class Handler(FileSystemEventHandler):
     def __init__(self, page_maker):
@@ -7,7 +9,7 @@ class Handler(FileSystemEventHandler):
 
     def on_any_event(self, event):
         if event.is_directory:
-            return None
+            return
 
         elif (
             event.event_type == "created"
@@ -19,3 +21,4 @@ class Handler(FileSystemEventHandler):
             )
             self.page_maker.setup()
             self.page_maker.make()
+            state.reload_needed = True
